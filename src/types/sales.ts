@@ -1,0 +1,1 @@
+// No specific type needed for SalesPanel as it initializes a chart.
