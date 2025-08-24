@@ -15,11 +15,10 @@
       <div class="dialog-table">
         <div class="table-header">
           <span>序号</span>
-          <span>首次发生时间</span>
+          <span>发生时间</span>
           <span>受害IP</span>
           <span>攻击IP</span>
-          <span>威胁名称</span>
-          <span>攻击阶段</span>
+          <!-- <span>威胁名称</span> -->
           <span>一级告警类型</span>
           <span>攻击结果</span>
           <span>查看</span>
@@ -27,11 +26,10 @@
         <div class="table-body">
           <div class="table-row" v-for="(row, idx) in pagedData" :key="idx">
             <span>{{ idx + 1 }}</span>
-            <span>{{ row.firstOccurrence }}</span>
-            <span>{{ row.victimIP }}</span>
+            <span>{{ row.occurrence }}</span>
+            <span>{{ row.assetIP }}</span>
             <span>{{ row.attackerIP }}</span>
-            <span>{{ row.threatName }}</span>
-            <span>{{ row.attackStage }}</span>
+            <!-- <span>{{ row.threatName }}</span> -->
             <span>{{ row.level1Type }}</span>
             <span>{{ row.attackResult }}</span>
           <span style="color: #00bcd4; cursor: pointer;" @click.stop="viewDetails(row)">查看详情</span>
@@ -40,14 +38,15 @@
         </div>
       </div>
       <div class="dialog-footer">
-        <button :disabled="page===1" @click="page--">&lt;</button>
+        <t-pagination size="small" :total="filteredData.length" :showPageSize="false" :page-size.sync="15" @change=paginationChange />
+        <!-- <button :disabled="page===1" @click="page--">&lt;</button>
         <button
           v-for="n in totalPages"
           :key="n"
           :class="{active: page===n}"
           @click="page=n"
         >{{ n }}</button>
-        <button :disabled="page===totalPages" @click="page++">&gt;</button>
+        <button :disabled="page===totalPages" @click="page++">&gt;</button> -->
       </div>
     </div>
 
@@ -108,21 +107,21 @@ export default defineComponent({
       let arr = [...allData.value];
 
       if (searchStart.value) {
-        arr = arr.filter(row => row.firstOccurrence >= searchStart.value);
+        arr = arr.filter(row => row.occurrence >= searchStart.value);
       }
 
       if (searchEnd.value) {
-        arr = arr.filter(row => row.firstOccurrence <= searchEnd.value);
+        arr = arr.filter(row => row.occurrence <= searchEnd.value);
       }
 
       if (searchName.value.trim()) {
         arr = arr.filter(row =>
-          row.victimIP.includes(searchName.value.trim()) ||
-          row.attackerIP.includes(searchName.value.trim()) ||
-          row.assetName.includes(searchName.value.trim())
+          row.assetIP?.includes(searchName.value.trim()) ||
+          row.attackerIP?.includes(searchName.value.trim()) ||
+          row.level1Type?.includes(searchName.value.trim())||
+          row.attackResult?.includes(searchName.value.trim())
         );
       }
-
       return arr;
     });
 
@@ -130,6 +129,7 @@ export default defineComponent({
     const totalPages = computed(() => Math.max(1, Math.ceil(filteredData.value.length / pageSize)));
     const pagedData = computed(() => {
       const start = (page.value - 1) * pageSize;
+      console.log('start',start);
       return filteredData.value.slice(start, start + pageSize);
     });
 
@@ -153,6 +153,10 @@ export default defineComponent({
       detailDialogVisible.value = true;
     };
 
+    const paginationChange = (event:{current:number})=>{
+      page.value=event.current;
+    }
+
     return {
       page,
       totalPages,
@@ -164,16 +168,26 @@ export default defineComponent({
       doSearch,
       detailDialogVisible,
       selectedRowData,
-      viewDetails
+      viewDetails,
+      paginationChange,
+      filteredData
     };
   }
 });
+      // // // console.log("🚀 ~ paginationChange ~ event:", event)
+      // // // console.log("🚀 ~ paginationChange ~ event:", event)
+      // // // console.log("🚀 ~ paginationChange ~ event:", event)
+      // // // console.log("🚀 ~ paginationChange ~ event:", event)
+      // // // console.log("🚀 ~ paginationChange ~ event:", event)
+      // // // console.log("🚀 ~ paginationChange ~ event:", event)
+      // // // console.log("🚀 ~ paginationChange ~ event:", event)
+      // // // console.log("🚀 ~ paginationChange ~ event:", event)
 </script>
 
 <style scoped>
 .fault-dialog-mask {
   position: fixed;
-  z-index: 9999;
+  z-index: 3000;
   left: 0;
   top: 0;
   right: 0;
@@ -327,5 +341,12 @@ export default defineComponent({
 .dialog-footer button:disabled {
   background: #444;
   cursor: not-allowed;
+}
+
+:deep(.t-pagination__number.t-is-current) {
+  background-color: #0097a7;
+}
+:deep(.t-pagination__total) {
+ color: #e0e0e0;
 }
 </style>

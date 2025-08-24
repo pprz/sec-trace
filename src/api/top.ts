@@ -1,12 +1,37 @@
 import type { TopItem, Province } from '@/types/top';
+import faultData from "./faultData.js";
 
-export const getTopItems = (): TopItem[] => [
-  { id: 1, rank: 1, title: '192.168.130.2', width: '90%', value: 180 },
-  { id: 2, rank: 2, title: '10.14.5.168', width: '87%', value: 150 },
-  { id: 3, rank: 3, title: '192.168.140.167', width: '85%', value: 140 },
-  { id: 4, rank: 4, title: '111.7.100.66', width: '78%', value: 130 },
-  { id: 5, rank: 5, title: '114.7.120.68', width: '60%', value: 100 },
-];
+
+/**
+ * 统计 faultData 中 assetIP 重复次数的前五名
+ * @returns 包含前五名 assetIP 信息的 TopItem 数组
+ */
+ export const getTopItems = (): TopItem[] => {
+  // 统计每个 assetIP 的出现次数
+  const ipCountMap: Record<string, number> = {};
+  for (const item of faultData) {
+    const assetIP = item.assetIP;
+    ipCountMap[assetIP] = (ipCountMap[assetIP] || 0) + 1;
+  }
+
+  // 将统计结果转换为数组并按出现次数降序排序
+  const sortedIPs = Object.entries(ipCountMap).sort((a, b) => b[1] - a[1]);
+
+  // 取前五名
+  const topFiveIPs = sortedIPs.slice(0, 5);
+
+  // 计算最大出现次数，用于计算宽度百分比
+  const maxCount = topFiveIPs.length > 0 ? topFiveIPs[0][1] : 1;
+
+  // 生成符合格式的结果数组
+  return topFiveIPs.map(([ip, count], index) => ({
+    id: index + 1,
+    rank: index + 1,
+    title: ip,
+    width: `${(count / maxCount * 100).toFixed(0)}%`,
+    value: count
+  }));
+};
 
 export const getProvinces = (): Province[] => [
   { name: '192.168.130.2', sales: '25,179', trend: 'icon-up' },

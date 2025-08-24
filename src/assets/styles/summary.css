@@ -182,10 +182,10 @@ header p {
   top: 0;
 }
 .main .total .sphere {
-  width: 20rem;
-  height: 20rem;
+  width: 30rem;
+  height: 30rem;
   position: relative;
-  margin: 14% auto 0;
+  margin: 0;
 }
 .main .total .sphere .sphere-bg {
   position: absolute;
@@ -209,7 +209,7 @@ header p {
 }
 .main .total .sphere .sum span {
   display: block;
-  margin-top: 30%;
+  margin-top: 35%;
   padding-left: 32%;
   color: #005a79;
   font-size: 0.9rem;

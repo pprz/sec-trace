@@ -1,7 +1,7 @@
 <template>
     <div class="summary main">
         <div class="total">
-            <div class="data1">
+            <!-- <div class="data1">
                 <span>高危告警</span>
                 <p>230</p>
             </div>
@@ -16,14 +16,14 @@
             <div class="data4">
                 <span>低危告警</span>
                 <p>2130</p>
-            </div>
-            <canvas class="rain"></canvas>
-            <canvas class="dashed"></canvas>
+            </div> -->
+            <!-- <canvas class="rain"></canvas>
+            <canvas class="dashed"></canvas> -->
             <div class="sphere">
                 <div class="sphere-bg"></div>
                 <div class="sum">
                     <span>告警总数</span>
-                    <p>2698</p>
+                    <p>944</p>
                 </div>
             </div>
             <div class="cicle3"></div>
@@ -32,19 +32,19 @@
             <div class="cicle6"></div>
             <div class="cicle7"></div>
             <div class="cicle8">
-                <span>89%</span>
+                <span>49%</span>
                 <p>高危占比</p>
             </div>
             <div class="cicle9">
-                <span>89%</span>
+                <span>0.6%</span>
                 <p>危急占比</p>
             </div>
             <div class="cicle10">
-                <span>89%</span>
+                <span>40%</span>
                 <p>中危占比</p>
             </div>
             <div class="cicle11">
-                <span>89%</span>
+                <span>10%</span>
                 <p>低危占比</p>
             </div>
         </div>
@@ -69,7 +69,8 @@
   /* 主容器 */
   .summary.main {
     height: 60%;
-    margin-top: 30px;
+    margin-top: 10px;
+    margin-bottom: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 12px rgba(0,0,0,0.1);
     display: flex;

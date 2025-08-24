@@ -19,7 +19,6 @@
           class="item"
           v-for="(stat, key) in statistics"
           :key="key"
-          @click="showDialog"
         >
           <h4>{{ stat.value }}</h4>
           <span>
@@ -29,30 +28,26 @@
         </div>
       </div>
     </div>
-    <FaultDialog v-if="dialogVisible" @close="dialogVisible = false" />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import { getOrderFilters, orderStatisticsMap } from '@/api/order';
+import { getOrderFilters,getOrderStatistics } from '@/api/order';
 import type { OrderStatistic } from '@/types/order';
-import FaultDialog from './dialog/FaultDialog.vue';
 import { eventBus } from '@/utils/eventBus';
 
 export default defineComponent({
   name: 'OrderPanel',
-  components: { FaultDialog },
   setup() {
-    // 初始化为 24小时
-    const activeFilter = ref('day1');
+    const activeFilter = ref('day30');
     const filters = ref(getOrderFilters());
-    const statistics = ref<Record<string, OrderStatistic>>(orderStatisticsMap[activeFilter.value]);
+    const statistics = ref<Record<string, OrderStatistic>>(getOrderStatistics(activeFilter.value));
     const dialogVisible = ref(false);
 
     const filterData = (key: string) => {
       activeFilter.value = key;
-      statistics.value = orderStatisticsMap[key];
+      statistics.value = getOrderStatistics(key);
       // 发送过滤器改变事件
       eventBus.emit('filterChange', key);
     };

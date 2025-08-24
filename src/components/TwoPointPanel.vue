@@ -14,7 +14,7 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted, onUnmounted } from 'vue';
 import * as echarts from 'echarts';
-
+import { getLevel2TypeStats } from '@/api/twopoint';
 export default defineComponent({
   name: 'TwoPointPanel',
   setup() {
@@ -22,16 +22,7 @@ export default defineComponent({
     let myChart: echarts.ECharts | null = null;
 
     // 模拟数据：告警类型及对应数值（转为数字）
-    const plantCap = [
-      { name: '代理工具', value: 222 },
-      { name: 'SQL注入', value: 115 },
-      { name: '代码执行', value: 113 },
-      { name: '溢出攻击', value: 95 },
-      { name: '信息泄露', value: 92 },
-      { name: '命令执行', value: 87 },
-      { name: 'webshell利用', value: 50 },
-      { name: '网络蠕虫', value: 34 },
-    ];
+    const plantCap = getLevel2TypeStats();
     
     const initChart = () => {
       if (chartRef.value) {
@@ -77,9 +68,9 @@ export default defineComponent({
           },
           grid: {
             left: '10%',
-            right: '10%',
-            bottom: '20%',
-            top: '15%'
+            right: '0',
+            bottom: '15%',
+            top: '5%'
           },
           series: [
             {
@@ -135,7 +126,7 @@ export default defineComponent({
   box-shadow: 0 2px 12px rgba(0,0,0,0.1);
 }
 .inner {
-  padding-left: 2.5rem !important;
+  /* padding-left: 2.5rem !important; */
   color: #fff;
   font-family: "Microsoft YaHei", Arial, sans-serif;
 }

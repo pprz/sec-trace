@@ -13,7 +13,7 @@
         <span class="date-container">
           <t-space align="center">
             <button
-              @click="visible = true"
+              @click="toggleDrawer"
               shape="circle"
               variant="text"
               class="logout-icon"
@@ -78,7 +78,7 @@
           shape="circle"
           image="https://tdesign.gtimg.com/site/chat-avatar.png"
         ></t-avatar>
-        <span class="title">Hi, &nbsp;我是AI</span>
+        <span class="title">Hi, &nbsp;我是网络安全小助手</span>
       </template>
       <t-chat
         ref="chatRef"
@@ -231,14 +231,16 @@ export default defineComponent({
       {
         avatar: "https://tdesign.gtimg.com/site/chat-avatar.png",
         role: "assistant",
-        name: "AI小助手",
-        content: "你好！我是AI小助手，有什么可以帮您的吗？",
+        name: "络安全小助手",
+        content: "你好！我是网络安全小助手，有什么可以帮您的吗？",
         datetime: new Date().toDateString(),
       },
     ]);
 
     const clearConfirm = function () {
-      chatList.value = [];
+      if (chatList.value.length > 2) {
+        chatList.value = [chatList.value[chatList.value.length - 1]];
+      }
     };
     const onStop = () => {
       console.log("停止", fetchController.value);
@@ -329,12 +331,20 @@ export default defineComponent({
       });
     };
 
+    const toggleDrawer = function(){
+      visible.value = true;
+      if (chatList.value.length > 2) {
+        chatList.value = [chatList.value[chatList.value.length - 1]];
+      }
+
+    }
+
     // 初始化时设置时间，并启动定时器
     onMounted(() => {
       updateDateTime(); // 初始化时立即更新一次
       setInterval(updateDateTime, 1000); // 每秒更新一次
       eventBus.on("openAiDialog", (event: any) => {
-        visible.value = true;
+        toggleDrawer();
         queryValue.value = `请简要回答什么是'${event.threatName}',以及如何应`;
       });
     });
@@ -364,6 +374,7 @@ export default defineComponent({
       handleChatScroll,
       queryValue,
       onStop,
+      toggleDrawer
     };
   },
 });
@@ -459,6 +470,6 @@ export default defineComponent({
 </style>
 <style lang="less">
 .drawer-box {
-  z-index: 9999;
+  z-index: 5000;
 }
 </style>

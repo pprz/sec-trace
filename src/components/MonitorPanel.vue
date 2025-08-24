@@ -23,7 +23,7 @@
         <div class="marquee-view">
           <div class="marquee" ref="marqueeRef">
             <div class="row" v-for="(row, rowIndex) in content.rows" :key="rowIndex"
-              @click="handleRowClick(row)"
+              @click="handleRowClick(row,rowIndex)"
               style="cursor: pointer;">
               <span class="col" v-for="(col, colIndex) in row" :key="colIndex"
                 :style="{ width: `${content.columns[colIndex].length * 15}px` }">
@@ -49,11 +49,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue';
+import { defineComponent, ref, onMounted} from 'vue';
 import { getMonitorData } from '@/api/monitor';
 import type { MonitorData } from '@/types/monitor';
 import FaultDialog from './dialog/FaultDialog.vue';
 import DetailDialog from './dialog/DetailDialog.vue';
+import faultData from '@/api/faultData'; 
 
 export default defineComponent({
   name: 'MonitorPanel',
@@ -72,68 +73,16 @@ export default defineComponent({
       faultDialogVisible.value = true;
     };
 
-    const handleRowClick = (row: any) => {
+    const handleRowClick = (row:any,rowIndex:number) => {
       if (row[row.length - 1] === '查看') {
-        selectedRowData.value = formatRowToDetail(row);
+        selectedRowData.value = formatRowToDetail(rowIndex);
         detailDialogVisible.value = true;
       }
     };
 
-    const formatRowToDetail = (row: string[]) => {
-      return {
-        firstOccurrence: row[0],
-        lastOccurrence: row[0],
-        victimIP: row[1],
-        attackerIP: row[2],
-        assetIP: '-',
-        level1Type: '攻击利用',
-        level2Type: '-',
-        threatName: '未知威胁',
-        ioc: 'IOC-123456',
-        attackResult: row[3],
-        threatLevel: '高危',
-        count: '1',
-        attackStage: '渗透阶段',
-        assetGroup: '服务器组',
-        xffProxy: '无',
-        uri: '/api/login',
-        cascadeUnit: '总部',
-        status: '未处理',
-        hostDomain: 'example.com',
-        source: 'IDS',
-        attackOrg: 'APT-C-22',
-        attackMethod: 'SQL注入',
-        httpStatus: '200',
-        attackDimension: '网络层',
-        isWhitelist: '否',
-        payload: '恶意负载内容...',
-        requestHeader: '{ "User-Agent": "Mozilla/5.0" }',
-        requestBody: '{"username":"admin","password":"test"}',
-        responseHeader: '{ "Content-Type": "text/html" }',
-        responseBody: '<html>...</html>',
-        webshellContent: '',
-        responsiblePerson: '张三',
-        assetTags: '核心资产',
-        assetName: 'DB_Server',
-        isKeyFocus: '是',
-        attackerGeo: '中国·北京',
-        eventReported: '已上报',
-        isRead: '否',
-        attackerAssetGroup: '外部IP',
-        victimAssetGroup: '内部IP',
-        alertTags: '紧急',
-        srcIP: row[1],
-        dstIP: row[2],
-        srcPort: '55432',
-        dstPort: '80',
-        protocol: 'TCP',
-        srcMAC: '00:1A:2B:3C:4D:5E',
-        dstMAC: '00:0D:3C:4E:5F:6A',
-        vlan: '100',
-        alertID: 'ALERT-2025-0402-001',
-        username: 'admin',
-        password: '********',
-      };
+    const formatRowToDetail = (rowIndex:number) => {
+      const top20Data = faultData.slice(0, 20);
+      return top20Data[rowIndex]
     };
 
     // 启动滚动效果
@@ -164,6 +113,8 @@ export default defineComponent({
       // 启动滚动
       startMarquee();
     });
+
+    
 
     return {
       activeTab,

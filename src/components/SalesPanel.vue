@@ -13,6 +13,7 @@
 import { defineComponent, ref, onMounted, onUnmounted } from "vue";
 import * as echarts from "echarts";
 import { eventBus } from "@/utils/eventBus";
+import { getLinerCharttData } from '@/api/fault';
 
 export default defineComponent({
   name: "SalesPanel",
@@ -20,21 +21,14 @@ export default defineComponent({
     const chartRef = ref<HTMLDivElement | null>(null);
     let chart: echarts.ECharts | null = null;
 
-    // 生成时间数据
+      // 生成时间数据
     const generateTimeData = (type: string) => {
-      const now = new Date();
       const data = [];
 
-      if (type === "day365") {
-        // 生成近一年的月份
-        for (let i = 11; i >= 0; i--) {
-          const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-          data.push(date.getFullYear() + "-" + (date.getMonth() + 1));
-        }
-      } else if (type === "day30") {
+      if (type === "day30") {
         // 生成近30天的日期
-        for (let i = 29; i >= 0; i--) {
-          const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+        for (let i = 30; i >= 0; i--) {
+          const date = new Date(new Date('2025-5-31').getTime() - i * 24 * 60 * 60 * 1000);
           data.push(date.getMonth() + 1 + "-" + date.getDate());
         }
       } else {
@@ -44,12 +38,6 @@ export default defineComponent({
         }
       }
       return data;
-    };
-
-    // 生成模拟数据
-    const generateMockData = (type: string) => {
-      const length = type === "day365" ? 12 : type === "day30" ? 30 : 12;
-      return Array.from({ length }, () => Math.floor(Math.random() * 500));
     };
 
     // 更新图表
@@ -64,19 +52,19 @@ export default defineComponent({
         series: [
           {
             name: "高危",
-            data: generateMockData(type),
+            data: getLinerCharttData(type)["高危"],
           },
           {
             name: "危急",
-            data: generateMockData(type),
+            data: getLinerCharttData(type)["危急"],
           },
           {
             name: "中危",
-            data: generateMockData(type),
+            data: getLinerCharttData(type)["中危"],
           },
           {
             name: "低危",
-            data: generateMockData(type),
+            data: getLinerCharttData(type)["低危"],
           },
         ],
       };
@@ -171,7 +159,7 @@ export default defineComponent({
 
       chart.setOption(option);
       // 默认显示24小时数据
-      updateChart("day1");
+      updateChart("day30");
     };
 
     onMounted(() => {
@@ -184,6 +172,7 @@ export default defineComponent({
       eventBus.on("filterChange", (event) => {
         // event 类型是 unknown，需断言
         const type = event as string;
+        console.log("🚀 ~ eventBus.on ~ type:", type)
         updateChart(type);
         // ...你的逻辑
       });

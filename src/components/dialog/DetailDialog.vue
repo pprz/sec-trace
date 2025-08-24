@@ -3,7 +3,7 @@
     <div class="dialog-box">
       <div class="dialog-header">
         <div class="title-wrapper">
-          <h3>【{{ alertDetails.victimIP }}】 告警详情</h3>
+          <h3>【{{ alertDetails.assetIP }}】 告警详情</h3>
           <button
             shape="circle"
             variant="text"
@@ -28,9 +28,9 @@
             class="form-item"
           >
             <label
-              ><strong>{{ labelMap[key] || key }}</strong></label
+              ><strong>{{ labelMap[key] }}</strong></label
             >
-            <div class="form-value">{{ value }}</div>
+            <div class="form-value" :title="value">{{ value }}</div>
           </div>
         </div>
       </div>
@@ -51,59 +51,35 @@ export default {
     const alertDetails = props.data;
 
     const labelMap: Record<string, string> = {
-      firstOccurrence: "首次发生时间",
-      lastOccurrence: "最近发生时间",
-      victimIP: "受害IP",
-      attackerIP: "攻击IP",
-      assetIP: "资产IP",
-      level1Type: "一级告警类型",
-      level2Type: "二级告警类型",
-      threatName: "威胁名称",
-      ioc: "威胁情报IOC/规则ID",
-      attackResult: "攻击结果",
-      threatLevel: "威胁级别",
-      count: "次数",
-      attackStage: "攻击阶段",
-      assetGroup: "资产分组",
-      xffProxy: "XFF代理",
-      uri: "URI",
-      cascadeUnit: "级联单位",
-      status: "处置状态",
-      hostDomain: "主机域名",
-      source: "告警设备来源",
-      attackOrg: "ATT&CK攻击组织",
-      attackMethod: "攻击手段",
-      httpStatus: "HTTP状态码",
-      attackDimension: "攻击维度",
-      isWhitelist: "是否白名单",
-      payload: "载荷内容",
-      requestHeader: "请求头",
-      requestBody: "请求体",
-      responseHeader: "响应头",
-      responseBody: "响应体",
-      webshellContent: "webshell文件内容",
-      responsiblePerson: "责任人",
-      assetTags: "资产标签",
-      assetName: "资产名称",
-      isKeyFocus: "重点关注",
-      attackerGeo: "攻击IP地理信息",
-      eventReported: "事件上报",
-      isRead: "是否已读",
-      attackerAssetGroup: "攻击IP资产组",
-      victimAssetGroup: "受害IP资产组",
-      alertTags: "告警标签",
-      srcIP: "源IP",
-      dstIP: "目的IP",
-      srcPort: "源端口",
-      dstPort: "目的端口",
-      protocol: "协议",
-      srcMAC: "源MAC",
-      dstMAC: "目的MAC",
-      vlan: "VLAN",
-      alertID: "告警ID",
-      username: "账号",
-      password: "密码",
-    };
+    occurrence: "发生时间",
+    attackerIP: "攻击IP",
+    assetIP: "受害IP",
+    level1Type: "一级告警类型",
+    level2Type: "二级告警类型",
+    threatName: "威胁名称",
+    attackResult: "攻击结果",
+    threatLevel: "威胁级别",
+    payload: "载荷内容",
+    requestHeader: "请求头",
+    requestBody: "请求体",
+    responseHeader: "响应头",
+    responseBody: "响应体",
+};
+// 发生时间 受害IP 攻击IP 一级告警类型 二级告警类型 攻击结果 威胁级别 载荷内容 请求头 请求体 响应头 响应体
+// const labelMapReversed: Record<string, string> = {
+//   "发生时间": "occurrence",
+//     "攻击IP": "attackerIP",
+//     "受害IP": "assetIP",
+//     "一级告警类型": "level1Type",
+//     "二级告警类型": "level2Type",
+//     "攻击结果": "attackResult",
+//     "威胁级别": "threatLevel",
+//     "载荷内容": "payload",
+//     "请求头": "requestHeader",
+//     "请求体": "requestBody",
+//     "响应头": "responseHeader",
+//     "响应体": "responseBody",
+// };
 
     const close = () => {
       emit("close");
@@ -134,7 +110,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999;
+  z-index: 5000;
 }
 
 .dialog-box {
@@ -149,7 +125,7 @@ export default {
   border-radius: 8px;
   max-width: 1000px;
   width: 90%;
-  max-height: 90vh;
+  height: 40vh;
   overflow-y: auto;
 }
 
@@ -182,6 +158,7 @@ export default {
 .form-item {
   display: flex;
   flex-direction: column;
+  max-width: 300px;
 }
 
 label {
@@ -196,6 +173,9 @@ label {
   font-size: 13px;
   white-space: pre-wrap;
   color: #e0e0e0;
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis;
 }
 
 .title-wrapper {
@@ -231,3 +211,4 @@ label {
   transition: background-color 0.3s ease;
 }
 </style>
+ 

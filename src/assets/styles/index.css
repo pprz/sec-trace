@@ -288,10 +288,10 @@ a{
   justify-content: space-between;
 }
 .point .pie {
-  top: 2rem;
   width: 21rem;
-  height: 14rem;
+  height: 18rem;
   margin-left: -0.8rem;
+  margin-bottom: -2rem;
 }
 .point .data {
   display: flex;
