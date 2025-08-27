@@ -1,0 +1,32 @@
+{
+  "name": "sec-trace-server",
+  "version": "1.0.0",
+  "description": "Backend service for sec-trace application built with Hono and MongoDB",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "test": "vitest"
+  },
+  "keywords": [
+    "hono",
+    "mongodb",
+    "typescript",
+    "api"
+  ],
+  "author": "sec-trace",
+  "license": "MIT",
+  "dependencies": {
+    "@hono/node-server": "^1.19.0",
+    "hono": "^4.0.0",
+    "mongodb": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsup": "^8.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  }
+}
