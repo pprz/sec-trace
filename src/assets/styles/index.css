@@ -263,18 +263,19 @@ a{
 	opacity: 0;
 }
 /* ------------------------------------------------------------动画 */
-@keyframes row{
-  0%{}
-  100%{
+@keyframes row {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
     transform: translateY(-50%);
   }
 }
 /* 调用动画 */
 .monitor .marquee {
-  /* //infinite永久调用动画 */
-  animation: row  10s linear infinite;
+  animation: row 10s linear infinite;
 }
-/*鼠标划入 停止动画  */
+/* 鼠标划入 暂停动画 */
 .monitor .marquee:hover {
   animation-play-state: paused;
 }

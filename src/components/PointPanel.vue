@@ -16,21 +16,31 @@
         </div>
       </div>
     </div>
+    <FaultDialog
+      v-if="dialogVisible"
+      :filter="{ type, level1Type }"
+      @close="dialogVisible = false"
+    />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from "vue";
+import { defineComponent, ref, onMounted, watchEffect } from "vue";
 import * as echarts from "echarts";
-import { getPointStats } from "@/api/point";
 import type { PointStat } from "@/types/point";
+import store from "@/utils/store";
+import { eventBus } from "@/utils/eventBus";
+import FaultDialog from "./dialog/FaultDialog.vue";
 
 export default defineComponent({
   name: "PointPanel",
+  components: { FaultDialog },
   setup() {
     const chartRef = ref<HTMLDivElement | null>(null);
     const pointStats = ref<PointStat[]>([]);
-
+    const type = ref("day30");
+    const level1Type = ref("");
+    const dialogVisible = ref(false);
     const initChart = () => {
       if (chartRef.value) {
         const chart = echarts.init(chartRef.value);
@@ -103,6 +113,11 @@ export default defineComponent({
 
         // 设置图表配置
         chart.setOption(option);
+        chart.on("click", (params) => {
+          // 修正类型断言为包含name属性的对象类型
+          const dataItem = params?.data as { name?: string };
+          showDialog(dataItem?.name || "");
+        });
 
         // 响应式调整图表大小
         window.addEventListener("resize", () => {
@@ -112,13 +127,28 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      pointStats.value = getPointStats();
+      eventBus.on("filterChange", (event) => {
+        // event 类型是 unknown，需断言
+        type.value = event as string;
+      });
+    });
+
+    const showDialog = (value: string) => {
+      dialogVisible.value = true;
+      level1Type.value = value;
+    };
+
+    watchEffect(() => {
+      pointStats.value = store.getPointStats(type.value);
       initChart();
     });
 
     return {
       chartRef,
       pointStats,
+      type,
+      level1Type,
+      dialogVisible,
     };
   },
 });

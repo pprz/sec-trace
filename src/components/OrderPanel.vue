@@ -15,12 +15,8 @@
       </div>
       <!-- 数据展示部分 -->
       <div class="data">
-        <div
-          class="item"
-          v-for="(stat, key) in statistics"
-          :key="key"
-        >
-          <h4>{{ stat.value }}</h4>
+        <div class="item" v-for="(stat, key) in statistics" :key="key">
+          <h4 @click="showDialog(stat.label)">{{ stat.value }}</h4>
           <span>
             <i class="icon-dot" :style="{ color: stat.color }"></i>
             {{ stat.label }}
@@ -28,33 +24,53 @@
         </div>
       </div>
     </div>
+
+    <FaultDialog
+      v-if="dialogVisible"
+      :filter="{ type, threatLevel }"
+      @close="dialogVisible = false"
+    />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
-import { getOrderFilters,getOrderStatistics } from '@/api/order';
-import type { OrderStatistic } from '@/types/order';
-import { eventBus } from '@/utils/eventBus';
-
+import { defineComponent, onMounted, ref, watchEffect } from "vue";
+import { getOrderFilters } from "@/api/order";
+import type { OrderStatistic } from "@/types/order";
+import { eventBus } from "@/utils/eventBus";
+import store from "@/utils/store";
+import FaultDialog from "./dialog/FaultDialog.vue";
 export default defineComponent({
-  name: 'OrderPanel',
+  name: "OrderPanel",
+  components: { FaultDialog },
   setup() {
-    const activeFilter = ref('day30');
+    const activeFilter = ref("day30");
     const filters = ref(getOrderFilters());
-    const statistics = ref<Record<string, OrderStatistic>>(getOrderStatistics(activeFilter.value));
+    const statistics = ref<Record<string, OrderStatistic>>({});
     const dialogVisible = ref(false);
-
+    const type = ref("day30");
+    const threatLevel = ref("");
     const filterData = (key: string) => {
       activeFilter.value = key;
-      statistics.value = getOrderStatistics(key);
+      statistics.value = store.getOrderStatistics(key);
       // 发送过滤器改变事件
-      eventBus.emit('filterChange', key);
+      eventBus.emit("filterChange", key);
     };
 
-    const showDialog = () => {
+    const showDialog = (value: string) => {
       dialogVisible.value = true;
+      threatLevel.value = value;
     };
+    onMounted(() => {
+      eventBus.on("filterChange", (event) => {
+        // event 类型是 unknown，需断言
+        type.value = event as string;
+      });
+    });
+
+    watchEffect(() => {
+      statistics.value = store.getOrderStatistics(activeFilter.value);
+    });
 
     return {
       activeFilter,
@@ -62,8 +78,10 @@ export default defineComponent({
       statistics,
       filterData,
       dialogVisible,
-      showDialog
+      showDialog,
+      type,
+      threatLevel,
     };
-  }
+  },
 });
 </script>

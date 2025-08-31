@@ -166,6 +166,11 @@ import { ref, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import { CheckCircleIcon, ArrowDownIcon } from "tdesign-icons-vue-next";
 import { eventBus } from "@/utils/eventBus";
+// 导入 fetchFaultLogs 函数
+import { fetchFaultLogs } from "@/api/fault";
+// 导入 FaultLog 类型
+import type { FaultLog } from "@/api/fault";
+import store from "@/utils/store";
 
 export default defineComponent({
   name: "App",
@@ -331,13 +336,25 @@ export default defineComponent({
       });
     };
 
-    const toggleDrawer = function(){
+    const toggleDrawer = function () {
       visible.value = true;
       if (chatList.value.length > 2) {
         chatList.value = [chatList.value[chatList.value.length - 1]];
       }
+    };
 
-    }
+    // 获取所有故障日志数据
+    const loadFaultLogs = async () => {
+      try {
+        store.setLoading(true);
+        const faultLogs: FaultLog[] = await fetchFaultLogs();
+        // 在这里可以将数据存储到全局状态或进行其他处理
+        store.setFaultLogs(faultLogs);
+        store.setLoading(false);
+      } catch (error) {
+        console.error("获取故障日志失败:", error);
+      }
+    };
 
     // 初始化时设置时间，并启动定时器
     onMounted(() => {
@@ -347,6 +364,9 @@ export default defineComponent({
         toggleDrawer();
         queryValue.value = `请简要回答什么是'${event.threatName}',以及如何应`;
       });
+
+      // 组件挂载后获取故障日志数据
+      loadFaultLogs();
     });
 
     onUnmounted(() => {
@@ -374,7 +394,7 @@ export default defineComponent({
       handleChatScroll,
       queryValue,
       onStop,
-      toggleDrawer
+      toggleDrawer,
     };
   },
 });

@@ -1,12 +1,18 @@
 <template>
   <div class="login_wrap">
     <div class="login_border">
-      <div class="login" style="width: 400px; margin: 40px auto;">
-        <h2 style="text-align: center; color: #00bcd4; margin-bottom: 30px;">修改密码</h2>
-        <form @submit.prevent="changePassword">
-          <input type="hidden" name="execution" th:value="${flowExecutionKey}" />
+      <div class="login" style="width: 400px; margin: 40px auto">
+        <h2 style="text-align: center; color: #00bcd4; margin-bottom: 30px">
+          修改密码
+        </h2>
+        <form @submit.prevent="handleClick">
+          <input
+            type="hidden"
+            name="execution"
+            th:value="${flowExecutionKey}"
+          />
           <input type="hidden" name="_eventId" value="submit" />
-          
+
           <dl>
             <dd>
               <input
@@ -16,7 +22,6 @@
                 id="username"
                 placeholder="请输入用户名"
                 v-model="username"
-                onkeydown="if(event.keyCode===13){changePassword();}"
               />
             </dd>
           </dl>
@@ -29,7 +34,6 @@
                 id="oldPassword"
                 placeholder="请输入旧密码"
                 v-model="oldPassword"
-                onkeydown="if(event.keyCode===13){changePassword();}"
               />
             </dd>
           </dl>
@@ -42,7 +46,6 @@
                 id="newPassword"
                 placeholder="请输入新密码"
                 v-model="newPassword"
-                onkeydown="if(event.keyCode===13){changePassword();}"
               />
             </dd>
           </dl>
@@ -55,14 +58,17 @@
                 id="confirmPassword"
                 placeholder="请确认新密码"
                 v-model="confirmPassword"
-                onkeydown="if(event.keyCode===13){changePassword();}"
               />
             </dd>
           </dl>
-          
+
           <div class="tishi" v-if="errorMessage">{{ errorMessage }}</div>
-          
-          <button type="submit" id="logbtn" style="outline:none; width: 100%; padding: 12px;">
+
+          <button
+            type="submit"
+            id="logbtn"
+            style="outline: none; width: 100%; padding: 12px"
+          >
             提交修改
           </button>
         </form>
@@ -72,44 +78,59 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { changePassword } from "@/api/authManage";
 const router = useRouter();
-const username = ref('');
-const oldPassword = ref('');
-const newPassword = ref('');
-const confirmPassword = ref('');
-const errorMessage = ref('');
+const username = ref("");
+const oldPassword = ref("");
+const newPassword = ref("");
+const confirmPassword = ref("");
+const errorMessage = ref("");
 
-const changePassword = () => {
-  if (!username.value || !oldPassword.value || !newPassword.value || !confirmPassword.value) {
-    errorMessage.value = '所有字段都必须填写';
+const handleClick = async () => {
+  if (
+    !username.value ||
+    !oldPassword.value ||
+    !newPassword.value ||
+    !confirmPassword.value
+  ) {
+    errorMessage.value = "所有字段都必须填写";
     return;
   }
 
   if (newPassword.value !== confirmPassword.value) {
-    errorMessage.value = '两次输入的新密码不一致';
+    errorMessage.value = "两次输入的新密码不一致";
     return;
   }
 
-  // 模拟后端验证
-  const validUsername = 'admin';
-  const validPassword = 'Admin123456@';
-  if (username.value !== validUsername) {
-    errorMessage.value = '用户名不存在';
-    return;
-  }
+  try {
+    const result = await changePassword(
+      username.value,
+      oldPassword.value,
+      newPassword.value
+    );
+    if (result && result.success) {
+      if (result.token) {
+        localStorage.setItem("token", result.token);
+      }
 
-  if (oldPassword.value !== validPassword) {
-    errorMessage.value = '旧密码错误';
-    return;
+      if (result.user) {
+        localStorage.setItem("user", JSON.stringify(result.user));
+      }
+
+      router.push("/dashboard");
+    } else {
+      errorMessage.value = result?.error || "用户名或密码错误！";
+    }
+  } catch (error) {
+    errorMessage.value = "用户名或密码错误！";
   }
 
   // 提交成功
-  errorMessage.value = '';
-  alert('密码修改成功');
-  router.push('/dashboard');
+  errorMessage.value = "";
+  alert("密码修改成功");
+  router.push("/dashboard");
 };
 </script>
 

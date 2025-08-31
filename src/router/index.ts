@@ -1,12 +1,18 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Login from '@/views/Login.vue'; // 根据实际路径调整
 import DashboardView from '@/views/DashboardView.vue'; // 根据实际路径调整
+import ChangePassword from '@/views/ChangePassword.vue'; // 根据实际路径调整
 
 const routes = [
   {
     path: '/login',
     name: 'Login',
     component: Login,
+  },
+  {
+    path: '/change-password',
+    name: 'change-password',
+    component: ChangePassword,
   },
   {
     path: '/dashboard',

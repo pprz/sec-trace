@@ -1,5 +1,3 @@
-
-
 <template>
   <div class="top panel">
     <div class="boxall">
@@ -9,7 +7,7 @@
           <li v-for="(item, index) in topItems" :key="index">
             <span>{{ item.rank }}</span>
             <div class="pmnav">
-              <p>{{ item.title }}</p>
+              <p @click="showDialog(item.title)">{{ item.title }}</p>
               <div class="pmbar">
                 <span :style="{ width: item.width }"></span>
                 <i>{{ item.value }}(次)</i>
@@ -19,48 +17,67 @@
         </ul>
       </div>
     </div>
+    <FaultDialog
+      v-if="dialogVisible"
+      :filter="{ type, assetIP }"
+      @close="dialogVisible = false"
+    />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue';
-import { getTopItems, getProvinces } from '@/api/top';
-import type { TopItem, Province } from '@/types/top';
-
+import { defineComponent, onMounted, ref, watchEffect } from "vue";
+import type { TopItem } from "@/types/top";
+import store from "@/utils/store";
+import { eventBus } from "@/utils/eventBus";
+import FaultDialog from "./dialog/FaultDialog.vue";
 export default defineComponent({
-  name: 'TopPanel',
+  name: "TopPanel",
   props: {
     // 如果需要从父组件接收高度参数
     containerHeight: {
       type: String,
-      default: 'calc(42% - 0.15rem)'
-    }
+      default: "calc(42% - 0.15rem)",
+    },
   },
+  components: { FaultDialog },
   setup() {
-
     const topItems = ref<TopItem[]>([]);
-    const provinces = ref<Province[]>([]);
-
+    const type = ref("day30");
+    const assetIP = ref("");
+    const dialogVisible = ref(false);
     onMounted(() => {
-      topItems.value = getTopItems();
-      provinces.value = getProvinces();
+      eventBus.on("filterChange", (event) => {
+        // event 类型是 unknown，需断言
+        type.value = event as string;
+      });
+    });
+    const showDialog = (value: string) => {
+      dialogVisible.value = true;
+      assetIP.value = value;
+    };
+    watchEffect(() => {
+      topItems.value = store.getTopItems(type.value);
     });
 
     return {
       topItems,
-      provinces,
+      type,
+      assetIP,
+      dialogVisible,
+      showDialog,
     };
   },
 });
 </script>
 
 <style scoped>
-@import '@/assets/styles/comon0.css';
+@import "@/assets/styles/comon0.css";
 
 .top.panel {
   height: 35%; /* 根据实际需求调整 */
   border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
 .h100 {

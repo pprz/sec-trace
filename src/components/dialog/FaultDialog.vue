@@ -9,8 +9,20 @@
         <input type="date" v-model="searchStart" class="date-input" />
         <span>至</span>
         <input type="date" v-model="searchEnd" class="date-input" />
-        <input type="text" v-model="searchName" class="name-input" placeholder="名称搜索" />
+        <input
+          type="text"
+          v-model="searchName"
+          class="name-input"
+          placeholder="名称搜索"
+        />
         <button class="search-btn" @click="doSearch">搜索</button>
+        <button
+          class="search-btn"
+          @click="download"
+          v-if="(currentUser as any).username === 'admin'"
+        >
+          下载
+        </button>
       </div>
       <div class="dialog-table">
         <div class="table-header">
@@ -32,13 +44,23 @@
             <!-- <span>{{ row.threatName }}</span> -->
             <span>{{ row.level1Type }}</span>
             <span>{{ row.attackResult }}</span>
-          <span style="color: #00bcd4; cursor: pointer;" @click.stop="viewDetails(row)">查看详情</span>
+            <span
+              style="color: #00bcd4; cursor: pointer"
+              @click.stop="viewDetails(row)"
+              >查看详情</span
+            >
           </div>
           <div v-if="pagedData.length === 0" class="table-empty">暂无数据</div>
         </div>
       </div>
       <div class="dialog-footer">
-        <t-pagination size="small" :total="filteredData.length" :showPageSize="false" :page-size.sync="15" @change=paginationChange />
+        <t-pagination
+          size="small"
+          :total="filteredData.length"
+          :showPageSize="false"
+          :page-size.sync="15"
+          @change="paginationChange"
+        />
         <!-- <button :disabled="page===1" @click="page--">&lt;</button>
         <button
           v-for="n in totalPages"
@@ -59,77 +81,71 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, watchEffect } from 'vue';
-import { getAlertData } from '@/api/fault';
-import type { AlertItem } from '@/api/fault';
-import DetailDialog from './DetailDialog.vue';
-
-// interface Row {
-//   name: string;
-//   attackResult: string;
-//   type: string;
-//   value: string;
-//   date?: string; // 模拟日期字段
-// }
-
-// function randomDate() {
-//   // 2024-05-01 ~ 2024-05-24
-//   const start = new Date(2024, 4, 1).getTime();
-//   const end = new Date(2024, 4, 24).getTime();
-//   const d = new Date(start + Math.random() * (end - start));
-//   return d.toISOString().slice(0, 10);
-// }
+import { defineComponent, ref, computed, watchEffect } from "vue";
+import DetailDialog from "./DetailDialog.vue";
+import store, { type FaultLog } from "@/utils/store";
 
 export default defineComponent({
-  name: 'FaultDialog',
+  name: "FaultDialog",
   components: { DetailDialog },
-  emits: ['close'],
-  setup(_, { emit }) {
+  emits: ["close"],
+  props: {
+    // 定义可选filter prop
+    filter: {
+      type: Object as () => {
+        type: string;
+        threatLevel?: string;
+        level1Type?: string;
+        level2Type?: string;
+        assetIP?: string;
+      } | null,
+      default: null,
+    },
+  },
+  setup(props, { emit }) {
     const pageSize = 15;
     const page = ref(1);
-    const searchStart = ref('');
-    const searchEnd = ref('');
-    const searchName = ref('');
+    const searchStart = ref("2025-05-01 00:00:00");
+    const searchEnd = ref("2025-05-31 23:59:59");
+    const searchName = ref("");
 
-    const allData = ref<AlertItem[]>([]);
+    const allData = ref<FaultLog[]>([]);
     const loading = ref(true);
-
-    // 调用接口获取数据
-    getAlertData().then(res => {
-      allData.value = res.data;
-      loading.value = false;
-    });
-
+    const currentUser = ref({});
+    currentUser.value = JSON.parse(localStorage.getItem("user")!);
     // 搜索过滤
     const filteredData = computed(() => {
       if (loading.value) return [];
 
+      // 获取基础数据
       let arr = [...allData.value];
 
+      // 应用本地搜索过滤
       if (searchStart.value) {
-        arr = arr.filter(row => row.occurrence >= searchStart.value);
+        arr = arr.filter((row) => row.occurrence >= searchStart.value);
       }
 
       if (searchEnd.value) {
-        arr = arr.filter(row => row.occurrence <= searchEnd.value);
+        arr = arr.filter((row) => row.occurrence <= searchEnd.value);
       }
-
       if (searchName.value.trim()) {
-        arr = arr.filter(row =>
-          row.assetIP?.includes(searchName.value.trim()) ||
-          row.attackerIP?.includes(searchName.value.trim()) ||
-          row.level1Type?.includes(searchName.value.trim())||
-          row.attackResult?.includes(searchName.value.trim())
+        arr = arr.filter(
+          (row) =>
+            row.assetIP?.includes(searchName.value.trim()) ||
+            row.attackerIP?.includes(searchName.value.trim()) ||
+            row.level1Type?.includes(searchName.value.trim()) ||
+            row.attackResult?.includes(searchName.value.trim())
         );
       }
       return arr;
     });
 
     // 分页
-    const totalPages = computed(() => Math.max(1, Math.ceil(filteredData.value.length / pageSize)));
+    const totalPages = computed(() =>
+      Math.max(1, Math.ceil(filteredData.value.length / pageSize))
+    );
     const pagedData = computed(() => {
       const start = (page.value - 1) * pageSize;
-      console.log('start',start);
       return filteredData.value.slice(start, start + pageSize);
     });
 
@@ -141,21 +157,59 @@ export default defineComponent({
     watchEffect(() => {
       if (page.value > totalPages.value) page.value = totalPages.value;
       if (page.value < 1) page.value = 1;
+      if (props.filter) {
+        allData.value = store.getFaultLogsByFilter(props.filter);
+      } else {
+        allData.value = store.getFaultLogs();
+      }
+
+      loading.value = store.isLoading();
     });
 
-    const close = () => emit('close');
+    const close = () => emit("close");
+    const download = () => {
+      // 生成CSV内容
+      const csvContent = [
+        // 表头
+        ['发生时间', '受害IP', '攻击IP', '一级告警类型', '攻击结果'].join(','),
+        // 数据行
+        ...filteredData.value.map(row => 
+          [
+            row.occurrence,
+            row.assetIP,
+            row.attackerIP,
+            row.level1Type,
+            row.attackResult
+          ].join(',')
+        )
+      ].join('\n');
+
+      // 创建Blob对象
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      
+      // 创建下载链接
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `故障日志_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    };
 
     const detailDialogVisible = ref(false);
-    const selectedRowData = ref<AlertItem | null>(null);
+    const selectedRowData = ref<FaultLog | null>(null);
 
-    const viewDetails = (row: AlertItem) => {
+    const viewDetails = (row: FaultLog) => {
       selectedRowData.value = row;
       detailDialogVisible.value = true;
     };
 
-    const paginationChange = (event:{current:number})=>{
-      page.value=event.current;
-    }
+    const paginationChange = (event: { current: number }) => {
+      page.value = event.current;
+    };
 
     return {
       page,
@@ -170,18 +224,12 @@ export default defineComponent({
       selectedRowData,
       viewDetails,
       paginationChange,
-      filteredData
+      filteredData,
+      currentUser,
+      download,
     };
-  }
+  },
 });
-      // // // console.log("🚀 ~ paginationChange ~ event:", event)
-      // // // console.log("🚀 ~ paginationChange ~ event:", event)
-      // // // console.log("🚀 ~ paginationChange ~ event:", event)
-      // // // console.log("🚀 ~ paginationChange ~ event:", event)
-      // // // console.log("🚀 ~ paginationChange ~ event:", event)
-      // // // console.log("🚀 ~ paginationChange ~ event:", event)
-      // // // console.log("🚀 ~ paginationChange ~ event:", event)
-      // // // console.log("🚀 ~ paginationChange ~ event:", event)
 </script>
 
 <style scoped>
@@ -199,7 +247,12 @@ export default defineComponent({
 }
 
 .fault-dialog {
-  background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364); /* 深蓝色渐变背景 */
+  background: linear-gradient(
+    to bottom,
+    #0f2027,
+    #203a43,
+    #2c5364
+  ); /* 深蓝色渐变背景 */
   color: #ffffff; /* 白色文字 */
   border-radius: 8px;
   padding: 20px;
@@ -347,6 +400,6 @@ export default defineComponent({
   background-color: #0097a7;
 }
 :deep(.t-pagination__total) {
- color: #e0e0e0;
+  color: #e0e0e0;
 }
 </style>

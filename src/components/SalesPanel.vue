@@ -10,26 +10,25 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, onUnmounted } from "vue";
+import { defineComponent, ref, onMounted, onUnmounted, watchEffect } from "vue";
 import * as echarts from "echarts";
 import { eventBus } from "@/utils/eventBus";
-import { getLinerCharttData } from '@/api/fault';
+import store from "@/utils/store";
 
 export default defineComponent({
   name: "SalesPanel",
   setup() {
     const chartRef = ref<HTMLDivElement | null>(null);
     let chart: echarts.ECharts | null = null;
-
-      // 生成时间数据
+    // 生成时间数据
     const generateTimeData = (type: string) => {
       const data = [];
 
       if (type === "day30") {
         // 生成近30天的日期
-        for (let i = 30; i >= 0; i--) {
-          const date = new Date(new Date('2025-5-31').getTime() - i * 24 * 60 * 60 * 1000);
-          data.push(date.getMonth() + 1 + "-" + date.getDate());
+        for (let day = 1; day <= 31; day++) {
+          const formattedDay = day.toString().padStart(2, "0");
+          data.push(`05-${formattedDay}`);
         }
       } else {
         // 24小时
@@ -43,7 +42,6 @@ export default defineComponent({
     // 更新图表
     const updateChart = (type: string) => {
       if (!chart) return;
-
       const xAxisData = generateTimeData(type);
       const option = {
         xAxis: {
@@ -52,19 +50,19 @@ export default defineComponent({
         series: [
           {
             name: "高危",
-            data: getLinerCharttData(type)["高危"],
+            data: store.getLinerCharttData(type)["高危"],
           },
           {
             name: "危急",
-            data: getLinerCharttData(type)["危急"],
+            data: store.getLinerCharttData(type)["危急"],
           },
           {
             name: "中危",
-            data: getLinerCharttData(type)["中危"],
+            data: store.getLinerCharttData(type)["中危"],
           },
           {
             name: "低危",
-            data: getLinerCharttData(type)["低危"],
+            data: store.getLinerCharttData(type)["低危"],
           },
         ],
       };
@@ -163,19 +161,19 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      initChart();
-      // 监听过滤器改变事件
-      //eventBus.on('filterChange', (type: string) => {
-      //  updateChart(type);
-      //});
-
       eventBus.on("filterChange", (event) => {
         // event 类型是 unknown，需断言
         const type = event as string;
-        console.log("🚀 ~ eventBus.on ~ type:", type)
         updateChart(type);
-        // ...你的逻辑
       });
+    });
+
+    watchEffect(() => {
+      const logs = store.getFaultLogs();
+      const loading = store.isLoading();
+      if (!loading && logs && logs.length > 0) {
+        initChart();
+      }
     });
 
     onUnmounted(() => {

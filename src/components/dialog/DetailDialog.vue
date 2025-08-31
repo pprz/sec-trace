@@ -23,7 +23,7 @@
       <div class="dialog-body">
         <div class="form-grid">
           <div
-            v-for="(value, key) in alertDetails"
+            v-for="(value, key) in filteredAlertDetails"
             :key="key"
             class="form-item"
           >
@@ -47,39 +47,33 @@ export default {
       required: true,
     },
   },
+  emits: ["close"],
   setup(props, { emit }) {
     const alertDetails = props.data;
 
     const labelMap: Record<string, string> = {
-    occurrence: "发生时间",
-    attackerIP: "攻击IP",
-    assetIP: "受害IP",
-    level1Type: "一级告警类型",
-    level2Type: "二级告警类型",
-    threatName: "威胁名称",
-    attackResult: "攻击结果",
-    threatLevel: "威胁级别",
-    payload: "载荷内容",
-    requestHeader: "请求头",
-    requestBody: "请求体",
-    responseHeader: "响应头",
-    responseBody: "响应体",
-};
-// 发生时间 受害IP 攻击IP 一级告警类型 二级告警类型 攻击结果 威胁级别 载荷内容 请求头 请求体 响应头 响应体
-// const labelMapReversed: Record<string, string> = {
-//   "发生时间": "occurrence",
-//     "攻击IP": "attackerIP",
-//     "受害IP": "assetIP",
-//     "一级告警类型": "level1Type",
-//     "二级告警类型": "level2Type",
-//     "攻击结果": "attackResult",
-//     "威胁级别": "threatLevel",
-//     "载荷内容": "payload",
-//     "请求头": "requestHeader",
-//     "请求体": "requestBody",
-//     "响应头": "responseHeader",
-//     "响应体": "responseBody",
-// };
+      occurrence: "发生时间",
+      attackerIP: "攻击IP",
+      assetIP: "受害IP",
+      level1Type: "一级告警类型",
+      level2Type: "二级告警类型",
+      threatName: "威胁名称",
+      attackResult: "攻击结果",
+      threatLevel: "威胁级别",
+      payload: "载荷内容",
+      requestHeader: "请求头",
+      requestBody: "请求体",
+      responseHeader: "响应头",
+      responseBody: "响应体",
+    };
+
+    // 创建一个只包含labelMap中定义属性的对象
+    const filteredAlertDetails: Record<string, any> = {};
+    for (const key in labelMap) {
+      if (alertDetails && alertDetails.hasOwnProperty(key)) {
+        filteredAlertDetails[key] = alertDetails[key];
+      }
+    }
 
     const close = () => {
       emit("close");
@@ -92,13 +86,13 @@ export default {
     return {
       alertDetails,
       labelMap,
+      filteredAlertDetails,
       close,
       openAiDialog,
     };
   },
 };
 </script>
-
 <style scoped>
 .dialog-overlay {
   position: fixed;
@@ -173,8 +167,8 @@ label {
   font-size: 13px;
   white-space: pre-wrap;
   color: #e0e0e0;
-  white-space: nowrap; 
-  overflow: hidden; 
+  white-space: nowrap;
+  overflow: hidden;
   text-overflow: ellipsis;
 }
 
@@ -211,4 +205,3 @@ label {
   transition: background-color 0.3s ease;
 }
 </style>
- 

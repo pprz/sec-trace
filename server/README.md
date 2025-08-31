@@ -61,12 +61,50 @@ server/
    pnpm start
    ```
 
-## API 端点
+## API 文档
 
-### 健康检查
+### 认证接口
+
+#### `POST /api/auth/login`
+
+**描述**: 用户登录接口
+
+**请求体**: 
+``json
+{
+  "username": "string",  // 用户名
+  "password": "string"   // 密码
+}
+```
+
+**响应**: 
+- 成功 (200):
+``json
+{
+  "success": true,
+  "token": "string",      // JWT令牌
+  "user": {
+    "id": "string",       // 用户ID
+    "username": "string", // 用户名
+    "name": "string",     // 用户显示名称
+    "email": "string"     // 邮箱地址
+  }
+}
+```
+- 失败 (400/401/500):
+```json
+{
+  "success": false,
+  "error": "string"       // 错误信息
+}
+```
+
+### 用户接口
+
+#### 健康检查
 - `GET /health` - 检查服务器状态
 
-### 用户管理
+#### 用户管理
 - `GET /api/users` - 获取所有用户
 - `GET /api/users/:id` - 根据 ID 获取用户
 - `POST /api/users` - 创建新用户
@@ -79,7 +117,7 @@ server/
 |---------------|------------------|-------------------------|
 | MONGODB_URI   | MongoDB 连接 URI | mongodb://localhost:27017 |
 | DB_NAME       | 数据库名称       | sec_trace               |
-| PORT          | 服务器端口       | 3000                    |
+| PORT          | 服务器端口       | 8080                    |
 | NODE_ENV      | 运行环境         | development             |
 
 ## 开发
