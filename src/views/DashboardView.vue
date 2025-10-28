@@ -293,7 +293,7 @@ export default defineComponent({
         method: "POST",
         headers: {
           Authorization:
-            "Bearer sk-wvljhlvzrdstqpamhdolwnhtpfeekwccjzizydzdsivsqglp",
+            "Bearer sk-rlncbcchjmqcgppnahivoiybvitjxxydvsfdvttwlmykltls",
           "Content-Type": "application/json",
         },
         body: JSON.stringify({

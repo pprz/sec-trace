@@ -176,7 +176,7 @@ const getters = {
     for (const alert of state.faultLogs) {
       const { threatLevel, occurrence } = alert;
       const [year, month, dayStr] = occurrence.split(' ')[0].split('-');
-      if (year === '2025' && month === '05') {
+      if (year === '2025' && month === '10') {
         const day = parseInt(dayStr, 10) - 1;
         if (day30Result[threatLevel]) {
           day30Result[threatLevel][day]++;
@@ -203,8 +203,8 @@ const getters = {
     });
 
     const now = new Date();
-    // const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
-    const yesterday = new Date('2025-05-31');
+    const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+    // const yesterday = new Date('2025-05-31');
     const yesterdayStart = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 0, 0, 0);
     const yesterdayEnd = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 23, 59, 59);
 
@@ -257,7 +257,7 @@ const getters = {
       for (const alert of state.faultLogs) {
         const { threatLevel, occurrence } = alert;
         const [year, month] = occurrence.split(' ')[0].split('-');
-        if (year === '2025' && month === '05') {
+        if (year === '2025' && month === '10') {
           switch (threatLevel) {
             case '高危':
               result.highRisk.value++;
@@ -275,8 +275,8 @@ const getters = {
         }
       }
     } else if (type === 'day1') {
-      // const now = new Date();
-      const now = new Date('2025-06-01');
+      const now = new Date();
+      // const now = new Date('2025-06-01');
       const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
       const yesterdayStart = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 0, 0, 0);
       const yesterdayEnd = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 23, 59, 59);
@@ -383,11 +383,11 @@ const getters = {
       if (type === 'day30') {
         // day30: 统计所有数据（5月数据）
         const [year, month] = item.occurrence.split(' ')[0].split('-');
-        return year === '2025' && month === '05';
+        return year === '2025' && month === '10';
       } else if (type === 'day1') {
         // day1: 统计 2025年5月31日 的数据
         const [date] = item.occurrence.split(' ');
-        return date === '2025-05-31';
+        return date === '2025-10-28';
       }
       return false;
     });
@@ -432,11 +432,11 @@ const getters = {
       if (type === 'day30') {
         // day30: 统计所有数据（5月数据）
         const [year, month] = item.occurrence.split(' ')[0].split('-');
-        return year === '2025' && month === '05';
+        return year === '2025' && month === '10';
       } else if (type === 'day1') {
         // day1: 统计 2025年5月31日 的数据
         const [date] = item.occurrence.split(' ');
-        return date === '2025-05-31';
+        return date === '2025-10-28';
       }
       return false;
     });
@@ -460,11 +460,11 @@ const getters = {
       if (type === 'day30') {
         // day30: 统计所有数据（5月数据）
         const [year, month] = item.occurrence.split(' ')[0].split('-');
-        return year === '2025' && month === '05';
+        return year === '2025' && month === '10';
       } else if (type === 'day1') {
         // day1: 统计 2025年5月31日 的数据
         const [date] = item.occurrence.split(' ');
-        return date === '2025-05-31';
+        return date === '2025-10-28';
       }
       return false;
     });
@@ -507,13 +507,13 @@ const getters = {
       // day30: 筛选2025年5月的所有数据
       filteredLogs = state.faultLogs.filter(log => {
         const [year, month] = log.occurrence.split(' ')[0].split('-');
-        return year === '2025' && month === '05';
+        return year === '2025' && month === '10';
       });
     } else if (filter.type === 'day1') {
       // day1: 筛选2025年5月31日的数据
       filteredLogs = state.faultLogs.filter(log => {
         const [date] = log.occurrence.split(' ');
-        return date === '2025-05-31';
+        return date === '2025-10-28';
       });
     }
 

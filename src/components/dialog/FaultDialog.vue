@@ -105,8 +105,8 @@ export default defineComponent({
   setup(props, { emit }) {
     const pageSize = 15;
     const page = ref(1);
-    const searchStart = ref("2025-05-01 00:00:00");
-    const searchEnd = ref("2025-05-31 23:59:59");
+    const searchStart = ref("2025-08-01 00:00:00");
+    const searchEnd = ref("2025-10-31 23:59:59");
     const searchName = ref("");
 
     const allData = ref<FaultLog[]>([]);
@@ -171,28 +171,31 @@ export default defineComponent({
       // 生成CSV内容
       const csvContent = [
         // 表头
-        ['发生时间', '受害IP', '攻击IP', '一级告警类型', '攻击结果'].join(','),
+        ["发生时间", "受害IP", "攻击IP", "一级告警类型", "攻击结果"].join(","),
         // 数据行
-        ...filteredData.value.map(row => 
+        ...filteredData.value.map((row) =>
           [
             row.occurrence,
             row.assetIP,
             row.attackerIP,
             row.level1Type,
-            row.attackResult
-          ].join(',')
-        )
-      ].join('\n');
+            row.attackResult,
+          ].join(",")
+        ),
+      ].join("\n");
 
       // 创建Blob对象
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+
       // 创建下载链接
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.setAttribute('href', url);
-      link.setAttribute('download', `故障日志_${new Date().toISOString().split('T')[0]}.csv`);
-      link.style.display = 'none';
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute(
+        "download",
+        `故障日志_${new Date().toISOString().split("T")[0]}.csv`
+      );
+      link.style.display = "none";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
