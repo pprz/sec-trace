@@ -28,7 +28,7 @@ export default defineComponent({
         // 生成近30天的日期
         for (let day = 1; day <= 31; day++) {
           const formattedDay = day.toString().padStart(2, "0");
-          data.push(`05-${formattedDay}`);
+          data.push(`10-${formattedDay}`);
         }
       } else {
         // 24小时
