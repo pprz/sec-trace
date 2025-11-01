@@ -2,7 +2,15 @@
 <template>
   <div class="point2 panel2">
     <div class="inner">
-      <h3>二级告警类型统计</h3>
+      <div class="header">
+        <h3>一级告警类型统计</h3>
+        <t-date-picker
+          v-model="selectedDate"
+          :options="datePickerOptions"
+          @change="handleDateChange"
+          clearable
+        />
+      </div>
       <div class="chart">
         <!-- ECharts 图表容器 -->
         <div ref="chartRef" class="bar-chart"></div>
@@ -10,7 +18,7 @@
     </div>
     <FaultDialog
       v-if="dialogVisible"
-      :filter="{ type, level2Type }"
+      :filter="{ type, level2Type, selectedDate }"
       @close="dialogVisible = false"
     />
   </div>
@@ -31,7 +39,11 @@ export default defineComponent({
     const type = ref("day30");
     const level2Type = ref("");
     const dialogVisible = ref(false);
-    // 模拟数据：告警类型及对应数值（转为数字）
+    const selectedDate = ref();
+    const globalType = ref("day30");
+    const datePickerOptions = {
+      disableDate: (date: Date) => date > new Date(),
+    };
     const plantCap = ref<{ name: string; value: number }[]>([]);
 
     const initChart = () => {
@@ -118,6 +130,14 @@ export default defineComponent({
       }
     };
 
+    const handleDateChange = (date: string | null) => {
+      if (!date) {
+        type.value = globalType.value;
+      } else {
+        type.value = "byDay";
+      }
+    };
+
     onMounted(() => {
       eventBus.on("filterChange", (event) => {
         // event 类型是 unknown，需断言
@@ -130,7 +150,10 @@ export default defineComponent({
     };
 
     watchEffect(() => {
-      plantCap.value = store.getLevel2TypeStats(type.value);
+      plantCap.value = store.getLevel2TypeStats(
+        type.value,
+        selectedDate.value as any
+      );
       initChart();
     });
 
@@ -144,6 +167,9 @@ export default defineComponent({
       type,
       level2Type,
       dialogVisible,
+      selectedDate,
+      datePickerOptions,
+      handleDateChange,
     };
   },
 });
@@ -172,5 +198,24 @@ h3 {
   font-size: 1.2rem;
   /*text-align: center;*/
   color: #fff;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.header .t-date-picker {
+  width: 180px;
+  flex-shrink: 0;
 }
 </style>

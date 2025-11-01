@@ -1,7 +1,15 @@
 <template>
   <div class="top panel">
     <div class="boxall">
-      <div class="alltitle">受害IP排行榜</div>
+      <div class="header">
+        <h3>一级告警类型统计</h3>
+        <t-date-picker
+          v-model="selectedDate"
+          :options="datePickerOptions"
+          @change="handleDateChange"
+          clearable
+        />
+      </div>
       <div class="boxnav paim">
         <ul class="h100">
           <li v-for="(item, index) in topItems" :key="index">
@@ -19,7 +27,7 @@
     </div>
     <FaultDialog
       v-if="dialogVisible"
-      :filter="{ type, assetIP }"
+      :filter="{ type, assetIP, selectedDate }"
       @close="dialogVisible = false"
     />
   </div>
@@ -46,18 +54,31 @@ export default defineComponent({
     const type = ref("day30");
     const assetIP = ref("");
     const dialogVisible = ref(false);
+    const selectedDate = ref();
+    const globalType = ref("day30");
+    const datePickerOptions = {
+      disableDate: (date: Date) => date > new Date(),
+    };
     onMounted(() => {
       eventBus.on("filterChange", (event) => {
         // event 类型是 unknown，需断言
         type.value = event as string;
       });
     });
+
+    const handleDateChange = (date: string | null) => {
+      if (!date) {
+        type.value = globalType.value;
+      } else {
+        type.value = "byDay";
+      }
+    };
     const showDialog = (value: string) => {
       dialogVisible.value = true;
       assetIP.value = value;
     };
     watchEffect(() => {
-      topItems.value = store.getTopItems(type.value);
+      topItems.value = store.getTopItems(type.value, selectedDate.value as any);
     });
 
     return {
@@ -66,6 +87,9 @@ export default defineComponent({
       assetIP,
       dialogVisible,
       showDialog,
+      selectedDate,
+      datePickerOptions,
+      handleDateChange,
     };
   },
 });
@@ -135,5 +159,25 @@ export default defineComponent({
   font-size: 12px;
   color: #666;
   margin-left: 5px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.header .t-date-picker {
+  width: 180px;
+  flex-shrink: 0;
 }
 </style>

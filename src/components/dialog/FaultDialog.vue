@@ -30,8 +30,10 @@
           <span>发生时间</span>
           <span>受害IP</span>
           <span>攻击IP</span>
-          <!-- <span>威胁名称</span> -->
           <span>一级告警类型</span>
+          <span>二级告警类型</span>
+          <span>威胁名称</span>
+          <span>威胁级别</span>
           <span>攻击结果</span>
           <span>查看</span>
         </div>
@@ -41,8 +43,10 @@
             <span>{{ row.occurrence }}</span>
             <span>{{ row.assetIP }}</span>
             <span>{{ row.attackerIP }}</span>
-            <!-- <span>{{ row.threatName }}</span> -->
             <span>{{ row.level1Type }}</span>
+            <span>{{ row.level2Type }}</span>
+            <span>{{ row.threatName }}</span>
+            <span>{{ row.threatLevel }}</span>
             <span>{{ row.attackResult }}</span>
             <span
               style="color: #00bcd4; cursor: pointer"
@@ -98,6 +102,7 @@ export default defineComponent({
         level1Type?: string;
         level2Type?: string;
         assetIP?: string;
+        selectedDate?: Date;
       } | null,
       default: null,
     },
@@ -113,6 +118,7 @@ export default defineComponent({
     const loading = ref(true);
     const currentUser = ref({});
     currentUser.value = JSON.parse(localStorage.getItem("user")!);
+
     // 搜索过滤
     const filteredData = computed(() => {
       if (loading.value) return [];
@@ -158,7 +164,7 @@ export default defineComponent({
       if (page.value > totalPages.value) page.value = totalPages.value;
       if (page.value < 1) page.value = 1;
       if (props.filter) {
-        allData.value = store.getFaultLogsByFilter(props.filter);
+        allData.value = store.getFaultLogsByFilter(props.filter as any);
       } else {
         allData.value = store.getFaultLogs();
       }

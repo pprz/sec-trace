@@ -374,7 +374,7 @@ const getters = {
    * 统计 faultData 中 assetIP 重复次数的前五名
    * @returns 包含前五名 assetIP 信息的 TopItem 数组
    */
-  getTopItems(type: string = 'day30'): TopItem[] {
+  getTopItems(type: string = 'day30', selectedDate: string): TopItem[] {
     // 统计每个 assetIP 的出现次数
     const ipCountMap: Record<string, number> = {};
 
@@ -388,6 +388,9 @@ const getters = {
         // day1: 统计 2025年5月31日 的数据
         const [date] = item.occurrence.split(' ');
         return date === '2025-10-28';
+      } else if (type === 'byDay') {
+        const [date] = item.occurrence.split(' ');
+        return date === selectedDate;
       }
       return false;
     });
@@ -415,7 +418,7 @@ const getters = {
       value: count
     }));
   },
-  getPointStats(type: string = 'day30'): TwoPointStat[] {
+  getPointStats(type: string = 'day30', selectedDate: string): TwoPointStat[] {
     // 统计每个 level1Type 的出现次数
     const colorMap: Record<string, string> = {
       '攻击利用': '#ed3f35',
@@ -434,9 +437,11 @@ const getters = {
         const [year, month] = item.occurrence.split(' ')[0].split('-');
         return year === '2025' && month === '10';
       } else if (type === 'day1') {
-        // day1: 统计 2025年5月31日 的数据
         const [date] = item.occurrence.split(' ');
         return date === '2025-10-28';
+      } else if (type === 'byDay') {
+        const [date] = item.occurrence.split(' ');
+        return date === selectedDate;
       }
       return false;
     });
@@ -453,7 +458,9 @@ const getters = {
       color: colorMap[label] || '#eacf19' // 如果没有对应的颜色，使用默认颜色
     }));
   },
-  getLevel2TypeStats(type: string = 'day30'): { name: string; value: number }[] {
+
+
+  getLevel2TypeStats(type: string = 'day30', selectedDate: string): { name: string; value: number }[] {
     // 用于存储每个 level2Type 的出现次数
     const level2TypeCount: Record<string, number> = {};
     const filteredLogs = state.faultLogs.filter(item => {
@@ -465,6 +472,9 @@ const getters = {
         // day1: 统计 2025年5月31日 的数据
         const [date] = item.occurrence.split(' ');
         return date === '2025-10-28';
+      } else if (type === 'byDay') {
+        const [date] = item.occurrence.split(' ');
+        return date === selectedDate;
       }
       return false;
     });
@@ -497,7 +507,8 @@ const getters = {
     threatLevel?: string,
     level1Type?: string,
     level2Type?: string,
-    assetIP?: string
+    assetIP?: string,
+    selectedDate?: string
   }): FaultLog[] {
     // 根据type参数筛选基础数据集
     let filteredLogs = state.faultLogs;
@@ -514,6 +525,11 @@ const getters = {
       filteredLogs = state.faultLogs.filter(log => {
         const [date] = log.occurrence.split(' ');
         return date === '2025-10-28';
+      });
+    } else if (filter.type === 'byDay' && filter.selectedDate) {
+      filteredLogs = state.faultLogs.filter(log => {
+        const [date] = log.occurrence.split(' ');
+        return date === filter.selectedDate;
       });
     }
 

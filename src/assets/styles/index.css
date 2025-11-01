@@ -297,7 +297,7 @@ a{
 .point .data {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: start;
   width: 6rem;
   padding: 1.5rem .25rem;
   margin-right: -3rem;

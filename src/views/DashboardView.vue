@@ -422,6 +422,8 @@ export default defineComponent({
   flex: 1; /* 占据中间的剩余空间 */
   text-align: center; /* 居中对齐 */
   margin-top: 2rem;
+  margin-right: 6rem;
+  font-size: 2.5rem;
 }
 
 .date-container {

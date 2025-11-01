@@ -40,7 +40,7 @@ html,body{height: 100%;}
 .mainbox>ul>li{ float: left; padding: 0 .1rem;height:100%;width: 30%}
 .mainbox>ul>li:nth-child(2){ width: 40%}
 
-.boxall{ margin-left: -60px;margin-top: -10px;padding:0 .2rem .2rem .2rem;  position: relative; margin-bottom: .15rem; z-index: 10; }
+.boxall{ margin-left: -60px;margin-top: -35px;padding:0 .2rem .2rem .2rem;  position: relative; margin-bottom: .15rem; z-index: 10; }
 .alltitle{ font-size:.95rem; color:#fff;  line-height: .5rem; position: relative;padding-left: .15rem}
 .boxnav{height: calc(100% - .5rem);}
 .row>li{ float: left; height: 100%;}
