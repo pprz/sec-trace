@@ -561,6 +561,92 @@ const getters = {
     return filteredLogs;
   },
 
+  /**
+   * 获取所有唯一的一级警告类型列表
+   * @returns 包含label和value的选项数组
+   */
+  getUniqueLevel1Types() {
+    const uniqueTypes = new Set<string>();
+    for (const log of state.faultLogs) {
+      // 确保level1Type存在且非空
+      if (log.level1Type) {
+        uniqueTypes.add(log.level1Type);
+      }
+    }
+    return Array.from(uniqueTypes).map(type => ({
+      label: type,
+      value: type
+    }));
+  },
+
+  /**
+   * 获取所有唯一的二级警告类型列表
+   * @returns 包含label和value的选项数组
+   */
+  getUniqueLevel2Types() {
+    const uniqueTypes = new Set<string>();
+    for (const log of state.faultLogs) {
+      // 确保level2Type存在且非空
+      if (log.level2Type) {
+        uniqueTypes.add(log.level2Type);
+      }
+    }
+    return Array.from(uniqueTypes).map(type => ({
+      label: type,
+      value: type
+    }));
+  },
+
+  /**
+   * 获取所有唯一的威胁名称列表
+   * @returns 包含label和value的选项数组
+   */
+  getUniqueThreatNames() {
+    const uniqueNames = new Set<string>();
+    for (const log of state.faultLogs) {
+      if (log.threatName) {
+        uniqueNames.add(log.threatName);
+      }
+    }
+    return Array.from(uniqueNames).map(name => ({
+      label: name,
+      value: name
+    }));
+  },
+
+  /**
+   * 获取所有唯一的威胁级别列表
+   * @returns 包含label和value的选项数组
+   */
+  getUniqueThreatLevels() {
+    const uniqueLevels = new Set<string>();
+    for (const log of state.faultLogs) {
+      if (log.threatLevel) {
+        uniqueLevels.add(log.threatLevel);
+      }
+    }
+    return Array.from(uniqueLevels).map(level => ({
+      label: level,
+      value: level
+    }));
+  },
+
+  /**
+   * 获取所有唯一的攻击结果列表
+   * @returns 包含label和value的选项数组
+   */
+  getUniqueAttackResults() {
+    const uniqueResults = new Set<string>();
+    for (const log of state.faultLogs) {
+      if (log.attackResult) {
+        uniqueResults.add(log.attackResult);
+      }
+    }
+    return Array.from(uniqueResults).map(result => ({
+      label: result,
+      value: result
+    }));
+  },
 };
 
 // 创建全局状态管理对象

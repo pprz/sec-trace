@@ -13,9 +13,49 @@
           type="text"
           v-model="searchName"
           class="name-input"
-          placeholder="名称搜索"
+          placeholder="IP搜索"
         />
-        <button class="search-btn" @click="doSearch">搜索</button>
+        <!-- 新增：一级警告类型筛选下拉框 -->
+        <t-select
+          v-model="selectedLevel1Type"
+          :options="level1TypeOptions"
+          placeholder="选择一级警告类型"
+          clearable
+          class="drop-down"
+        />
+        <!-- 新增：二级警告类型筛选下拉框 -->
+        <t-select
+          v-model="selectedLevel2Type"
+          :options="level2TypeOptions"
+          placeholder="选择二级警告类型"
+          clearable
+          class="drop-down"
+        />
+        <!-- 新增：威胁名称筛选下拉框 -->
+        <t-select
+          v-model="selectedThreatName"
+          :options="threatNameOptions"
+          placeholder="选择威胁名称"
+          clearable
+          class="drop-down"
+        />
+        <!-- 新增：威胁级别筛选下拉框 -->
+        <t-select
+          v-model="selectedThreatLevel"
+          :options="threatLevelOptions"
+          placeholder="选择威胁级别"
+          clearable
+          class="drop-down"
+        />
+        <!-- 新增：攻击结果筛选下拉框 -->
+        <t-select
+          v-model="selectedAttackResult"
+          :options="attackResultOptions"
+          placeholder="选择攻击结果"
+          clearable
+          class="drop-down"
+        />
+        <!-- <button class="search-btn" @click="doSearch">搜索</button> -->
         <button
           class="search-btn"
           @click="download"
@@ -87,11 +127,13 @@
 <script lang="ts">
 import { defineComponent, ref, computed, watchEffect } from "vue";
 import DetailDialog from "./DetailDialog.vue";
+// 新增：导入TDesign Select组件
+import { Select as TSelect } from "tdesign-vue-next";
 import store, { type FaultLog } from "@/utils/store";
 
 export default defineComponent({
   name: "FaultDialog",
-  components: { DetailDialog },
+  components: { DetailDialog, TSelect },
   emits: ["close"],
   props: {
     // 定义可选filter prop
@@ -114,12 +156,32 @@ export default defineComponent({
     const searchEnd = ref("2025-10-31 23:59:59");
     const searchName = ref("");
 
+    // 新增：一级警告类型筛选相关状态
+    const level1TypeOptions = ref(store.getUniqueLevel1Types());
+    const selectedLevel1Type = ref<string>("");
+
+    // 新增：二级警告类型筛选相关状态
+    const level2TypeOptions = ref(store.getUniqueLevel2Types());
+    const selectedLevel2Type = ref<string>("");
+
+    // 新增：威胁名称筛选相关状态
+    const threatNameOptions = ref(store.getUniqueThreatNames());
+    const selectedThreatName = ref<string>("");
+
+    // 新增：威胁级别筛选相关状态
+    const threatLevelOptions = ref(store.getUniqueThreatLevels());
+    const selectedThreatLevel = ref<string>("");
+
+    // 新增：攻击结果筛选相关状态
+    const attackResultOptions = ref(store.getUniqueAttackResults());
+    const selectedAttackResult = ref<string>("");
+
     const allData = ref<FaultLog[]>([]);
     const loading = ref(true);
     const currentUser = ref({});
     currentUser.value = JSON.parse(localStorage.getItem("user")!);
 
-    // 搜索过滤
+    // 修改：增强过滤逻辑，支持多条件组合
     const filteredData = computed(() => {
       if (loading.value) return [];
 
@@ -143,6 +205,36 @@ export default defineComponent({
             row.attackResult?.includes(searchName.value.trim())
         );
       }
+
+      // 新增：一级警告类型筛选
+      if (selectedLevel1Type.value) {
+        arr = arr.filter((row) => row.level1Type === selectedLevel1Type.value);
+      }
+
+      // 新增：二级警告类型筛选
+      if (selectedLevel2Type.value) {
+        arr = arr.filter((row) => row.level2Type === selectedLevel2Type.value);
+      }
+
+      // 新增：威胁名称筛选
+      if (selectedThreatName.value) {
+        arr = arr.filter((row) => row.threatName === selectedThreatName.value);
+      }
+
+      // 新增：威胁级别筛选
+      if (selectedThreatLevel.value) {
+        arr = arr.filter(
+          (row) => row.threatLevel === selectedThreatLevel.value
+        );
+      }
+
+      // 新增：攻击结果筛选
+      if (selectedAttackResult.value) {
+        arr = arr.filter(
+          (row) => row.attackResult === selectedAttackResult.value
+        );
+      }
+
       return arr;
     });
 
@@ -228,6 +320,19 @@ export default defineComponent({
       searchStart,
       searchEnd,
       searchName,
+      // 新增：导出筛选状态
+      level1TypeOptions,
+      selectedLevel1Type,
+      // 新增：导出二级警告类型筛选状态
+      level2TypeOptions,
+      selectedLevel2Type,
+      // 新增：导出新筛选状态
+      threatNameOptions,
+      selectedThreatName,
+      threatLevelOptions,
+      selectedThreatLevel,
+      attackResultOptions,
+      selectedAttackResult,
       doSearch,
       detailDialogVisible,
       selectedRowData,
@@ -305,9 +410,12 @@ export default defineComponent({
   margin-bottom: 15px;
   flex-wrap: wrap;
 }
-
+.drop-down {
+  width: 8rem;
+}
 .date-input,
-.name-input {
+.name-input,
+.drop-down {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid #4a6fa1;
   color: #e0e0e0;
@@ -319,7 +427,8 @@ export default defineComponent({
 }
 
 .date-input:focus,
-.name-input:focus {
+.name-input:focus,
+.drop-down:focus {
   border-color: #00bcd4;
 }
 
