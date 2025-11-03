@@ -387,7 +387,7 @@ const getters = {
       } else if (type === 'day1') {
         // day1: 统计 2025年5月31日 的数据
         const [date] = item.occurrence.split(' ');
-        return date === '2025-10-28';
+        return date === '2025-10-27';
       } else if (type === 'byDay') {
         const [date] = item.occurrence.split(' ');
         return date === selectedDate;
@@ -419,6 +419,7 @@ const getters = {
     }));
   },
   getPointStats(type: string = 'day30', selectedDate: string): TwoPointStat[] {
+    console.log("🚀 ~ type:", type)
     // 统计每个 level1Type 的出现次数
     const colorMap: Record<string, string> = {
       '攻击利用': '#ed3f35',
@@ -438,13 +439,14 @@ const getters = {
         return year === '2025' && month === '10';
       } else if (type === 'day1') {
         const [date] = item.occurrence.split(' ');
-        return date === '2025-10-28';
+        return date === '2025-10-27';
       } else if (type === 'byDay') {
         const [date] = item.occurrence.split(' ');
         return date === selectedDate;
       }
       return false;
     });
+    console.log("🚀 ~ filteredLogs:", filteredLogs)
 
     for (const item of filteredLogs) {
       const level1Type = item.level1Type;
@@ -471,13 +473,14 @@ const getters = {
       } else if (type === 'day1') {
         // day1: 统计 2025年5月31日 的数据
         const [date] = item.occurrence.split(' ');
-        return date === '2025-10-28';
+        return date === '2025-10-27';
       } else if (type === 'byDay') {
         const [date] = item.occurrence.split(' ');
         return date === selectedDate;
       }
       return false;
     });
+
 
     // 遍历 faultData 统计 level2Type 出现次数
     for (const item of filteredLogs) {
@@ -524,7 +527,7 @@ const getters = {
       // day1: 筛选2025年5月31日的数据
       filteredLogs = state.faultLogs.filter(log => {
         const [date] = log.occurrence.split(' ');
-        return date === '2025-10-28';
+        return date === '2025-10-27';
       });
     } else if (filter.type === 'byDay' && filter.selectedDate) {
       filteredLogs = state.faultLogs.filter(log => {

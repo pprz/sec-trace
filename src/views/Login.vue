@@ -88,12 +88,8 @@
                     </button>
                   </form>
                 </div>
-
-                <!-- ... 其他代码 ... -->
               </div>
             </div>
-
-            <!-- ... 其他代码 ... -->
           </div>
         </div>
       </div>
@@ -127,53 +123,245 @@ export default {
       showApp: false,
     };
   },
-  methods: {
-    async userLogin() {
-      const usernameInput = document.getElementById("txtUser").value.trim();
-      const passwordInput = document.getElementById("Userpwd").value.trim();
+  mounted() {
+    const usernameInput = document.getElementById("txtUser");
+    const passwordInput = document.getElementById("Userpwd");
+    const loginButton = document.getElementById("logbtn");
 
-      const errorDiv = document.querySelector(".tishi");
-      if (errorDiv) errorDiv.textContent = "";
-
-      if (!usernameInput || !passwordInput) {
-        if (errorDiv) {
-          errorDiv.style.color = "#ff9900";
-          errorDiv.textContent = "用户名或密码不能为空！";
-        } else {
-          alert("用户名或密码不能为空！");
+    // 检查所有可能的锁定记录
+    let lockedUsername = null;
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key?.startsWith("lockout_time_")) {
+        const username = key.replace("lockout_time_", "");
+        const lockoutTimeStr = localStorage.getItem(key);
+        if (lockoutTimeStr) {
+          const lockoutTime = parseInt(lockoutTimeStr, 10);
+          let remaining = lockoutTime - Date.now();
+          if (remaining > 0) {
+            lockedUsername = username;
+            this.startCountdown(lockedUsername, remaining);
+            break;
+          } else {
+            // 清除过期的锁定
+            localStorage.removeItem(key);
+            localStorage.removeItem(`login_attempts_${username}`);
+          }
         }
+      }
+    }
+
+    if (lockedUsername) {
+      // 设置输入框为锁定用户名
+      if (usernameInput) {
+        usernameInput.value = lockedUsername;
+        usernameInput.disabled = true;
+      }
+      if (passwordInput) passwordInput.disabled = true;
+      if (loginButton) loginButton.disabled = true;
+      this.checkLockoutStatus(lockedUsername);
+    }
+
+    if (usernameInput) {
+      const username = usernameInput.value.trim();
+      if (username) {
+        this.checkLockoutStatus(username);
+      }
+      // usernameInput.addEventListener("input", (e) => {
+      //   const newUsername = e.target.value.trim();
+      //   if (newUsername) {
+      //     this.checkLockoutStatus(newUsername);
+      //   }
+      // });
+    }
+  },
+  methods: {
+    /**
+     * 处理用户登录请求
+     * 1. 验证输入有效性
+     * 2. 检查账户锁定状态
+     * 3. 调用API进行身份验证
+     * 4. 处理成功/失败响应
+     */
+    async userLogin() {
+      const usernameInput = document.getElementById("txtUser");
+      const passwordInput = document.getElementById("Userpwd");
+      const errorDiv = document.querySelector(".tishi");
+
+      if (!usernameInput || !passwordInput || !errorDiv) return;
+
+      const username = usernameInput.value.trim();
+      const password = passwordInput.value.trim();
+
+      // 清空之前的错误提示
+      errorDiv.textContent = "";
+
+      // 验证输入有效性
+      if (!username) {
+        errorDiv.textContent = "请输入用户名";
+        errorDiv.style.color = "red";
         return;
       }
 
+      if (!password) {
+        errorDiv.textContent = "请输入密码";
+        errorDiv.style.color = "red";
+        return;
+      }
+
+      // 检查账户锁定状态
+      this.checkLockoutStatus(username);
+      const lockoutTimeStr = localStorage.getItem(`lockout_time_${username}`);
+      if (lockoutTimeStr && parseInt(lockoutTimeStr, 10) > Date.now()) {
+        return; // 仍处于锁定状态，不进行登录尝试
+      }
+
       try {
-        const result = await login(usernameInput, passwordInput);
-        if (result && result.success) {
-          if (result.token) {
-            localStorage.setItem("token", result.token);
-          }
+        // 调用登录API
+        const response = await login(username, password);
+        console.log("🚀 ~ response:", response);
 
-          if (result.user) {
-            localStorage.setItem("user", JSON.stringify(result.user));
-          }
+        if (response.success) {
+          // 清除登录尝试记录
+          localStorage.removeItem(`login_attempts_${username}`);
+          localStorage.removeItem(`lockout_time_${username}`);
 
+          // 存储token
+          localStorage.setItem("token", response.token);
+          localStorage.setItem("user", JSON.stringify(response.user));
+          // 跳转到dashboard
           this.$router.push("/dashboard");
         } else {
-          if (errorDiv) {
-            errorDiv.style.color = "red";
-            errorDiv.textContent = result?.error || "用户名或密码错误！";
-          } else {
-            alert(result?.error || "登录失败");
-          }
+          // 处理登录失败
+          this.handleLoginFailure(username);
         }
       } catch (error) {
-        console.error("登录异常:", error);
+        this.handleLoginFailure(username);
+      }
+    },
+
+    /**
+     * 处理登录失败逻辑
+     * @param {string} username - 当前尝试登录的用户名
+     */
+    handleLoginFailure(username) {
+      const errorDiv = document.querySelector(".tishi");
+      const maxAttempts = 5;
+
+      // 获取当前尝试次数
+      let attempts = parseInt(
+        localStorage.getItem(`login_attempts_${username}`) || "0",
+        10
+      );
+      attempts = isNaN(attempts) ? 0 : attempts;
+
+      // 更新尝试次数
+      attempts++;
+      localStorage.setItem(`login_attempts_${username}`, attempts.toString());
+
+      if (attempts >= maxAttempts) {
+        // 达到最大尝试次数，锁定账户30分钟
+        const lockoutTime = Date.now() + 30 * 60 * 1000;
+        localStorage.setItem(
+          `lockout_time_${username}`,
+          lockoutTime.toString()
+        );
+        this.startCountdown(username, 30 * 60 * 1000);
+      } else {
+        // 更新错误提示
+        const remainingAttempts = maxAttempts - attempts;
         if (errorDiv) {
           errorDiv.style.color = "red";
-          errorDiv.textContent = "登录失败，请重试";
-        } else {
-          alert("登录失败，请重试");
+          errorDiv.textContent = `密码错误，密码由12位数字、大小写字母与特殊字符组成，还剩${remainingAttempts}次机会`;
         }
       }
+    },
+
+    /**
+     * 检查用户锁定状态并更新UI
+     * @param {string} username - 需要检查的用户名
+     */
+    checkLockoutStatus(username) {
+      const lockoutTimeStr = localStorage.getItem(`lockout_time_${username}`);
+      const errorDiv = document.querySelector(".tishi");
+
+      if (lockoutTimeStr) {
+        const lockoutTime = parseInt(lockoutTimeStr, 10);
+        const remaining = lockoutTime - Date.now();
+
+        if (remaining > 0) {
+          // 有效锁定状态，启动倒计时
+          this.startCountdown(username, remaining);
+          return;
+        } else {
+          // 清除过期的锁定记录
+          localStorage.removeItem(`lockout_time_${username}`);
+          localStorage.removeItem(`login_attempts_${username}`);
+        }
+      }
+
+      // 检查登录尝试次数
+      const attemptsStr = localStorage.getItem(`login_attempts_${username}`);
+      let attempts = 0;
+      if (attemptsStr !== null) {
+        attempts = parseInt(attemptsStr, 10);
+        if (isNaN(attempts)) attempts = 0;
+      }
+
+      const maxAttempts = 5;
+      if (attempts > 0 && attempts < maxAttempts) {
+        const remainingAttempts = maxAttempts - attempts;
+        if (errorDiv) {
+          errorDiv.style.color = "red";
+          errorDiv.textContent = `密码错误，密码由12位数字、大小写字母与特殊字符组成，还剩${remainingAttempts}次机会`;
+        }
+      } else if (errorDiv) {
+        errorDiv.textContent = "";
+      }
+    },
+
+    startCountdown(username, duration) {
+      const errorDiv = document.querySelector(".tishi");
+      const usernameInput = document.getElementById("txtUser");
+      const passwordInput = document.getElementById("Userpwd");
+      const loginButton = document.getElementById("logbtn");
+
+      // 确保输入框被禁用
+      if (usernameInput) usernameInput.disabled = true;
+      if (passwordInput) passwordInput.disabled = true;
+      if (loginButton) loginButton.disabled = true;
+
+      let remaining = duration;
+      // 立即显示初始提示（解决刷新后立即显示问题）
+      const lockoutDuration = Math.ceil(remaining / 1000);
+      const minutes = Math.floor(lockoutDuration / 60);
+      const seconds = lockoutDuration % 60;
+      const formattedTime = `${String(minutes).padStart(2, "0")}:${String(
+        seconds
+      ).padStart(2, "0")}`;
+      if (errorDiv) {
+        errorDiv.style.color = "red";
+        errorDiv.textContent = `账户已锁定，请${formattedTime}后重试`;
+      }
+
+      const interval = setInterval(() => {
+        remaining -= 1000;
+        if (remaining <= 0) {
+          clearInterval(interval);
+          this.clearLockout(username);
+        } else {
+          const lockoutDuration = Math.ceil(remaining / 1000);
+          const minutes = Math.floor(lockoutDuration / 60);
+          const seconds = lockoutDuration % 60;
+          const formattedTime = `${String(minutes).padStart(2, "0")}:${String(
+            seconds
+          ).padStart(2, "0")}`;
+          if (errorDiv) {
+            errorDiv.style.color = "red";
+            errorDiv.textContent = `账户已锁定，请${formattedTime}后重试`;
+          }
+        }
+      }, 1000);
     },
   },
 };
@@ -213,5 +401,12 @@ export default {
 
 .login-style dl {
   margin-bottom: 15px;
+}
+
+/* 为禁用状态的输入框添加灰色背景 */
+.txtUser:disabled,
+.Userpwd:disabled {
+  background-color: #f0f0f0 !important;
+  cursor: not-allowed;
 }
 </style>

@@ -145,6 +145,18 @@
         </div>
       </t-button>
     </t-drawer>
+    <t-dialog
+      v-model:visible="isSessionWarning"
+      :close-btn="false"
+      :header="false"
+      :footer="false"
+      style="z-index: 10000"
+    >
+      <div style="text-align: center; padding: 20px">
+        <p>用户闲置时间已超过30分钟，将在{{ warningCountdown }}后退出登录</p>
+        <t-button @click="cancelWarning">取消</t-button>
+      </div>
+    </t-dialog>
   </div>
 </template>
 
@@ -166,6 +178,8 @@ import { ref, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import { CheckCircleIcon, ArrowDownIcon } from "tdesign-icons-vue-next";
 import { eventBus } from "@/utils/eventBus";
+import { Dialog } from "tdesign-vue-next";
+
 // 导入 fetchFaultLogs 函数
 import { fetchFaultLogs } from "@/api/fault";
 // 导入 FaultLog 类型
@@ -175,6 +189,7 @@ import store from "@/utils/store";
 export default defineComponent({
   name: "App",
   components: {
+    Dialog,
     TwoPointPanel,
     OverviewPanel,
     MonitorPanel,
@@ -356,6 +371,45 @@ export default defineComponent({
       }
     };
 
+    const isSessionWarning = ref(false);
+    const warningCountdown = ref(30);
+    let mainTimeout: number | null = null;
+    let warningInterval: number | null = null;
+
+    const resetMainTimer = () => {
+      if (mainTimeout) clearTimeout(mainTimeout);
+      mainTimeout = window.setTimeout(() => {
+        isSessionWarning.value = true;
+        startWarningCountdown();
+      }, 60 * 30 * 1000); // 测试用1秒
+    };
+
+    const startWarningCountdown = () => {
+      warningCountdown.value = 30;
+      if (warningInterval) clearInterval(warningInterval);
+      warningInterval = window.setInterval(() => {
+        warningCountdown.value--;
+        if (warningCountdown.value <= 0) {
+          clearInterval(warningInterval!);
+          logout();
+        }
+      }, 1000);
+    };
+
+    const cancelWarning = () => {
+      isSessionWarning.value = false;
+      if (warningInterval) clearInterval(warningInterval);
+      resetMainTimer();
+    };
+
+    const handleUserActivity = () => {
+      if (isSessionWarning.value) {
+        cancelWarning();
+      } else {
+        resetMainTimer();
+      }
+    };
+
     // 初始化时设置时间，并启动定时器
     onMounted(() => {
       updateDateTime(); // 初始化时立即更新一次
@@ -367,10 +421,22 @@ export default defineComponent({
 
       // 组件挂载后获取故障日志数据
       loadFaultLogs();
+
+      const events = ["keydown", "scroll", "click"];
+      events.forEach((event) => {
+        window.addEventListener(event, handleUserActivity);
+      });
+      resetMainTimer();
     });
 
     onUnmounted(() => {
       eventBus.off("openAiDialog");
+      const events = ["keydown", "scroll", "click"];
+      events.forEach((event) => {
+        window.removeEventListener(event, handleUserActivity);
+      });
+      if (mainTimeout) clearTimeout(mainTimeout);
+      if (warningInterval) clearInterval(warningInterval);
     });
 
     return {
@@ -395,6 +461,9 @@ export default defineComponent({
       queryValue,
       onStop,
       toggleDrawer,
+      isSessionWarning,
+      warningCountdown,
+      cancelWarning,
     };
   },
 });

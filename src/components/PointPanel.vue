@@ -135,6 +135,7 @@ export default defineComponent({
     onMounted(() => {
       eventBus.on("filterChange", (event) => {
         globalType.value = event as string;
+        type.value = event as string;
       });
     });
 

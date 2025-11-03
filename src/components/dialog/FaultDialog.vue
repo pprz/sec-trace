@@ -446,6 +446,12 @@ export default defineComponent({
   background-color: #0097a7;
 }
 
+/* 表格容器滚动设置 */
+.dialog-table {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
 /* 表格样式 */
 .table-header,
 .table-row {
