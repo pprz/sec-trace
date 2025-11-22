@@ -146,8 +146,6 @@ export class FaultLogController {
       const randomCount = Math.floor(Math.random() * 16) + 5;
       const shuffled = [...newFaultData].sort(() => Math.random() - 0.5);
       const selectedData = shuffled.slice(0, randomCount);
-      console.log("🚀 ~ FaultLogController ~ selectedData:", selectedData.length)
-
       const savedLogs = []
 
       for (const { _id, createdAt, updatedAt, ...other } of selectedData) {
