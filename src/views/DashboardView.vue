@@ -659,7 +659,7 @@ export default defineComponent({
         exportLoading.value = true;
 
         // 模拟导入过程
-        const res = await saveNewFaultLogs();
+        await saveNewFaultLogs();
 
         // 生成导入文件名
         const now = new Date();

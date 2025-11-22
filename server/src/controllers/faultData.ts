@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-const faultData =[
+const faultData = [
     {
         "occurrence": "2025-10-27 01:26:14",
         "assetIP": "10.14.10.18",
@@ -2370,21 +2370,6 @@ const faultData =[
         "disposalstatus": "未处置",
         "terminalDetails": "无",
         "requestHeader": "\"POST /api/auth/oauth/token HTTP/1.1\\r\\nHost: 183.201.228.22:85\\r\\nConnection: keep-alive\\r\\nContent-Length: 95\\r\\nisToken: false\\r\\nUser-Agent: Mozilla/5.0 (X11; Linux aarch64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.6478.251 Safari/537.36\\r\\nAuthorization: Basic cGlnOnBpZw==\\r\\nauth: 50e6a84d9417459a8621f04d81b1eba9\\r\\nopen-id: 1805526533448601602\\r\\nContent-Type: application/x-www-form-urlencoded\\r\\nAccept: application/json, text/plain, */*\\r\\ncompany-id: 1\\r\\nOrigin: http://183.201.228.22:85\\r\\nReferer: http://183.201.228.22:85/\\r\\nAccept-Encoding: gzip, deflate\\r\\nAccept-Language: zh-CN,zh-TW;q=0.9,zh;q=0.8,en-US;q=0.7,en;q=0.6\\r\\n\\r\\n\""
-    },
-    {
-        "occurrence": "2025-10-22 15:04:06",
-        "assetIP": "117.68.24.86",
-        "attackerIP": "10.14.9.76",
-        "level1Type": "攻击利用",
-        "level2Type": "跨站脚本攻击（XSS）",
-        "threatName": "跨站脚本攻击尝试",
-        "attackResult": "企图",
-        "threatLevel": "中危",
-        "eventNamet": "无",
-        "safety": "奇安信",
-        "disposalstatus": "未处置",
-        "terminalDetails": "无",
-        "requestHeader": "\"PUT /%2Fflora/qiDian/f6e/3ce/315ff53971d8a186318b87f729?q-sign-algorithm=sha1&q-ak=AKIDErdBTVifa0B7rMLdtuhHciY8aFfquceU&q-sign-time=1761116646%3B1761117246&q-key-time=1761116646%3B1761117246&q-header-list=host&q-url-param-list=&q-signature=33a0d1e1b77220a3b233fcb78b2e7e5084671e49 HTTP/1.1\\r\\nsentry-trace: 23bc21f9a1564e08a56d9fe790486c14-b04d916eae8d6d9e\\r\\nbaggage: sentry-environment=production,sentry-public_key=c016c3b3e111466b9a76a0cfd42a7235,sentry-trace_id=23bc21f9a1564e08a56d9fe790486c14\\r\\nContent-Type: text/html; charset=utf-8\\r\\nContent-Length: 209\\r\\nHost: wehear-pipeline-1258476243.cos.ap-shanghai.myqcloud.com\\r\\nConnection: Keep-Alive\\r\\nAccept-Encoding: gzip\\r\\nUser-Agent: okhttp/3.14.9\\r\\n\\r\\n\""
     },
     {
         "occurrence": "2025-10-22 14:28:56",
