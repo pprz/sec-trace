@@ -660,7 +660,6 @@ export default defineComponent({
 
         // 模拟导入过程
         const res = await saveNewFaultLogs();
-        console.log("🚀 ~ handleExport ~ res:", res);
 
         // 生成导入文件名
         const now = new Date();
