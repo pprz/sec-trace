@@ -7,57 +7,57 @@
         </h2>
         <form @submit.prevent="handleClick">
           <input
-            type="hidden"
-            name="execution"
-            th:value="${flowExecutionKey}"
+              type="hidden"
+              name="execution"
+              th:value="${flowExecutionKey}"
           />
           <input type="hidden" name="_eventId" value="submit" />
 
           <dl>
             <dd>
               <input
-                name="username"
-                type="text"
-                class="txtUser"
-                id="username"
-                placeholder="请输入用户名"
-                v-model="username"
+                  name="username"
+                  type="text"
+                  class="txtUser"
+                  id="username"
+                  placeholder="请输入用户名"
+                  v-model="username"
               />
             </dd>
           </dl>
           <dl>
             <dd>
               <input
-                name="oldPassword"
-                type="password"
-                class="Userpwd"
-                id="oldPassword"
-                placeholder="请输入旧密码"
-                v-model="oldPassword"
+                  name="oldPassword"
+                  type="password"
+                  class="Userpwd"
+                  id="oldPassword"
+                  placeholder="请输入旧密码"
+                  v-model="oldPassword"
               />
             </dd>
           </dl>
           <dl>
             <dd>
               <input
-                name="newPassword"
-                type="password"
-                class="Userpwd"
-                id="newPassword"
-                placeholder="请输入新密码"
-                v-model="newPassword"
+                  name="newPassword"
+                  type="password"
+                  class="Userpwd"
+                  id="newPassword"
+                  placeholder="请输入新密码"
+                  v-model="newPassword"
               />
             </dd>
           </dl>
           <dl>
             <dd>
               <input
-                name="confirmPassword"
-                type="password"
-                class="Userpwd"
-                id="confirmPassword"
-                placeholder="请确认新密码"
-                v-model="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  class="Userpwd"
+                  id="confirmPassword"
+                  placeholder="请确认新密码"
+                  v-model="confirmPassword"
               />
             </dd>
           </dl>
@@ -65,9 +65,9 @@
           <div class="tishi" v-if="errorMessage">{{ errorMessage }}</div>
 
           <button
-            type="submit"
-            id="logbtn"
-            style="outline: none; width: 100%; padding: 12px"
+              type="submit"
+              id="logbtn"
+              style="outline: none; width: 100%; padding: 12px"
           >
             提交修改
           </button>
@@ -90,10 +90,10 @@ const errorMessage = ref("");
 
 const handleClick = async () => {
   if (
-    !username.value ||
-    !oldPassword.value ||
-    !newPassword.value ||
-    !confirmPassword.value
+      !username.value ||
+      !oldPassword.value ||
+      !newPassword.value ||
+      !confirmPassword.value
   ) {
     errorMessage.value = "所有字段都必须填写";
     return;
@@ -104,11 +104,18 @@ const handleClick = async () => {
     return;
   }
 
+  // 添加密码复杂度验证 - 正则表达式
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+  if (!passwordRegex.test(newPassword.value)) {
+    errorMessage.value = "新密码必须包含大小写字母、数字且至少8位";
+    return;
+  }
+
   try {
     const result = await changePassword(
-      username.value,
-      oldPassword.value,
-      newPassword.value
+        username.value,
+        oldPassword.value,
+        newPassword.value
     );
     if (result && result.success) {
       if (result.token) {
@@ -127,7 +134,7 @@ const handleClick = async () => {
     errorMessage.value = "用户名或密码错误！";
   }
 
-  // 提交成功
+// 提交成功
   errorMessage.value = "";
   alert("密码修改成功");
   router.push("/dashboard");

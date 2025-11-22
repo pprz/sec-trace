@@ -2,12 +2,16 @@
   <div class="top panel">
     <div class="boxall">
       <div class="header">
-        <h3>一级告警类型统计</h3>
-        <t-date-picker
+        <h3>受害IP排行</h3>
+        <t-date-range-picker
           v-model="selectedDate"
           :options="datePickerOptions"
           @change="handleDateChange"
           clearable
+          :disableDate="{
+            before: '2025-08-01',
+            after: '2025-10-28',
+          }"		  
         />
       </div>
       <div class="boxnav paim">
@@ -54,7 +58,7 @@ export default defineComponent({
     const type = ref("day30");
     const assetIP = ref("");
     const dialogVisible = ref(false);
-    const selectedDate = ref();
+    const selectedDate = ref([]);
     const globalType = ref("day30");
     const datePickerOptions = {
       disableDate: (date: Date) => date > new Date(),
@@ -66,8 +70,8 @@ export default defineComponent({
       });
     });
 
-    const handleDateChange = (date: string | null) => {
-      if (!date) {
+    const handleDateChange = (date: string[]) => {
+      if (!date.length) {
         type.value = globalType.value;
       } else {
         type.value = "byDay";
@@ -78,7 +82,7 @@ export default defineComponent({
       assetIP.value = value;
     };
     watchEffect(() => {
-      topItems.value = store.getTopItems(type.value, selectedDate.value as any);
+      topItems.value = store.getTopItems(type.value, selectedDate.value);
     });
 
     return {
@@ -176,8 +180,8 @@ export default defineComponent({
   font-weight: bold;
 }
 
-.header .t-date-picker {
-  width: 180px;
+.header .t-date-range-picker {
+  width: 230px;
   flex-shrink: 0;
 }
 </style>

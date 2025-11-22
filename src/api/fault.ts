@@ -9,6 +9,10 @@ export interface FaultLog {
   attackResult: string;
   threatLevel: string;
   threatName: string;
+  eventNamet: string
+  safety: string
+  disposalstatus: string
+  terminalDetails: string
   payload?: string;
   requestHeader?: string;
   responseHeader?: string;
@@ -186,6 +190,26 @@ export const saveFaultLogs = async (): Promise<{ count: number; faultLogs: Fault
     return null;
   }
 };
+export const saveNewFaultLogs = async (): Promise<{ count: number; faultLogs: FaultLog[] } | null> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/save-new`, {
+      method: 'POST',
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to save fault logs: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return {
+      count: data.count,
+      faultLogs: data.faultLogs
+    };
+  } catch (error) {
+    console.error('Error saving fault logs:', error);
+    return null;
+  }
+};
 
 export interface AlertItem {
   occurrence: string;
@@ -196,6 +220,10 @@ export interface AlertItem {
   attackResult: string;
   threatLevel: string;
   threatName: string;
+  eventNamet: string
+  safety: string
+  disposalstatus: string
+  terminalDetails: string
   payload: string;
   requestHeader?: string;
   requestBody?: string;

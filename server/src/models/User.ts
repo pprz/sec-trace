@@ -33,7 +33,7 @@ export class UserModel {
   }
 
   // 创建新用户
-  async create(userData: Omit<UserBase, 'createdAt' | 'updatedAt'>): Promise<User> {
+  async  create(userData: Omit<UserBase, 'createdAt' | 'updatedAt'>): Promise<User> {
     const now = new Date()
     const hashedPassword = await this.hashPassword(userData.password)
 

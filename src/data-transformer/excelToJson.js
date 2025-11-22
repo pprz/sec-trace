@@ -9,6 +9,10 @@ const headerMapping = {
   "攻击结果": "attackResult",
   "威胁级别": "threatLevel",
   "威胁名称": "threatName",
+  "事件名称": "eventNamet",
+  "安全设备": "safety",
+  "处置状态": "disposalstatus",
+  "终端详情": "terminalDetails",
   "载荷内容": "payload",
   "请求头": "requestHeader",
   "请求体": "requestBody",
@@ -18,6 +22,7 @@ const headerMapping = {
 
 function excelToJson(filePath) {
   // 读取 Excel 文件
+  // const workbook = XLSX.readFile(filePath);
   const workbook = XLSX.readFile(filePath);
   // 获取第一个工作表
   const sheetName = workbook.SheetNames[1];

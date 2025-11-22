@@ -88,7 +88,7 @@
           <!-- 顶部悬浮提示框 -->
           <div class="tooltip-container">
             <div class="tooltip">
-              攻击设备代 *** 描述，AC 设备阻断 IP: 103.23.45.67
+           威胁名称:{{ alertDetails.threatName }}
             </div>
           </div>
 
@@ -120,8 +120,7 @@
 
           <!-- 底部信息栏 -->
           <div class="timeline-footer">
-            事件 ID: 56789 | 操作：临时封禁 | 时长: 24 小时 | 关联威胁情报：恶意
-            IP 库 S230910
+            事件 ID: {{ alertDetails.id }} | 处置状态: {{ alertDetails.disposalstatus }}
           </div>
         </div>
       </div>
@@ -150,6 +149,10 @@ export default {
       level1Type: "一级告警类型",
       level2Type: "二级告警类型",
       threatName: "威胁名称",
+      eventNamet:"事件名称",
+      safety: "安全设备",
+      disposalstatus: "处置状态",
+      terminalDetails: "终端详情",
       attackResult: "攻击结果",
       threatLevel: "威胁级别",
       payload: "载荷内容",
@@ -182,43 +185,38 @@ export default {
     // 新增：攻击时序流程图弹窗控制
     const attackTimelineDialogVisible = ref(false);
 
-    // 新增：攻击时序流程图步骤数据
+    // 新增：攻击时序流程图步骤数据（根据数据库字段动态生成）
     const attackTimelineSteps = ref([
       {
         icon: "S",
-        time: "08:00:00",
+        time: alertDetails.occurrence ? alertDetails.occurrence.split(' ')[1] : "",
         title: "源 IP",
-        desc: "攻击源 IP: 202.101.23.45",
+        desc: `攻击源 IP: ${alertDetails.attackerIP}`,
       },
       {
         icon: "P",
-        time: "08:01:23",
-        title: "终端详情",
-        desc: "探测目标系统开放端口",
+        time: "",
+        title: "探测行为",
+        desc:`${alertDetails.terminalDetails}`,
       },
       {
         icon: "B",
-        time: "08:05:12",
-        title: "事件名称",
-        desc: "尝试破解系统密码",
+        time: "",
+        title: "攻击行为",
+        desc: `${alertDetails.eventNamet}`,
       },
       {
         icon: "I",
-        time: "08:06:45",
+        time: "",
         title: "安全设备",
-        desc: "AC 设备检测到异常行为",
+        desc: `${alertDetails.safety}`,
       },
-      {
-        icon: "B",
-        time: "08:07:01",
-        title: "阻断 IP",
-        desc: "阻断源 IP: 202.101.23.45",
-      },
+
       {
         icon: "T",
-        time: "08:07:01",
+        time: "",
         title: "目标 IP",
-        desc: "目标 IP: 10.20.30.40",
+        desc: `目标 IP: ${alertDetails.assetIP}`,
       },
     ]);
 
@@ -469,8 +467,8 @@ label {
 
 .tooltip-container {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 420px;
+  right: 700px;
   z-index: 10;
 }
 

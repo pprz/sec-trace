@@ -76,20 +76,6 @@ export class FaultLogModel {
     }))
   }
 
-  async findByDateRange(startDate: string, endDate: string): Promise<FaultLog[]> {
-    const faultLogList = await this.collection.find({
-      occurrence: {
-        $gte: startDate,
-        $lte: endDate
-      }
-    }).toArray()
-
-    return faultLogList.map(item => ({
-      ...item,
-      id: item._id.toString()
-    }))
-  }
-
   async findByThreatLevel(threatLevel: string): Promise<FaultLog[]> {
     const faultLogList = await this.collection.find({ threatLevel }).toArray()
     return faultLogList.map(item => ({

@@ -75,6 +75,7 @@
           <span>威胁名称</span>
           <span>威胁级别</span>
           <span>攻击结果</span>
+          <span>安全设备</span>
           <span>查看</span>
         </div>
         <div class="table-body">
@@ -88,6 +89,7 @@
             <span>{{ row.threatName }}</span>
             <span>{{ row.threatLevel }}</span>
             <span>{{ row.attackResult }}</span>
+            <span>{{ row.safety }}</span>
             <span
               style="color: #00bcd4; cursor: pointer"
               @click.stop="viewDetails(row)"
@@ -144,7 +146,7 @@ export default defineComponent({
         level1Type?: string;
         level2Type?: string;
         assetIP?: string;
-        selectedDate?: Date;
+        selectedDate?: string[];
       } | null,
       default: null,
     },
@@ -347,6 +349,15 @@ export default defineComponent({
 </script>
 
 <style scoped>
+:deep(.t-input__inner::placeholder) {
+  color: #888 !important;
+  opacity: 1;
+}
+:deep(.t-input.t-is-readonly.t-input--suffix) {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #e0e0e0 !important;
+  opacity: 1;
+}	
 .fault-dialog-mask {
   position: fixed;
   z-index: 3000;
@@ -446,10 +457,9 @@ export default defineComponent({
   background-color: #0097a7;
 }
 
-/* 表格容器滚动设置 */
-.dialog-table {
-  max-height: 500px;
-  overflow-y: auto;
+.dialog-table{
+	max-height: 70vh;
+	overflow-y: auto;
 }
 
 /* 表格样式 */

@@ -6,7 +6,7 @@
           <div class="log_logo left">
             <a href="javascript:;"
               ><span style="font-size: 46px"
-                >网络安全日志分析与溯源系统</span
+                >网络安全日志分析</span
               ></a
             >
           </div>
@@ -165,6 +165,7 @@ export default {
     if (usernameInput) {
       const username = usernameInput.value.trim();
       if (username) {
+        console.log("🚀 ~ username:", username);
         this.checkLockoutStatus(username);
       }
       // usernameInput.addEventListener("input", (e) => {
@@ -219,7 +220,6 @@ export default {
       try {
         // 调用登录API
         const response = await login(username, password);
-        console.log("🚀 ~ response:", response);
 
         if (response.success) {
           // 清除登录尝试记录
@@ -229,6 +229,7 @@ export default {
           // 存储token
           localStorage.setItem("token", response.token);
           localStorage.setItem("user", JSON.stringify(response.user));
+		  this.checkLockoutStatus(username) 
           // 跳转到dashboard
           this.$router.push("/dashboard");
         } else {
@@ -237,6 +238,7 @@ export default {
         }
       } catch (error) {
         this.handleLoginFailure(username);
+        console.error("Login error:", error);
       }
     },
 
@@ -272,7 +274,7 @@ export default {
         const remainingAttempts = maxAttempts - attempts;
         if (errorDiv) {
           errorDiv.style.color = "red";
-          errorDiv.textContent = `密码错误，密码由12位数字、大小写字母与特殊字符组成，还剩${remainingAttempts}次机会`;
+          errorDiv.textContent = `密码错误，密码由8位以上数字、大小写字母与特殊字符组成，还剩${remainingAttempts}次机会`;
         }
       }
     },
@@ -313,7 +315,7 @@ export default {
         const remainingAttempts = maxAttempts - attempts;
         if (errorDiv) {
           errorDiv.style.color = "red";
-          errorDiv.textContent = `密码错误，密码由12位数字、大小写字母与特殊字符组成，还剩${remainingAttempts}次机会`;
+          errorDiv.textContent = `密码错误，密码由8位以上数字、大小写字母与特殊字符组成，还剩${remainingAttempts}次机会`;
         }
       } else if (errorDiv) {
         errorDiv.textContent = "";

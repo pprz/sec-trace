@@ -1,6 +1,7 @@
 import { Context } from 'hono'
 import { FaultLogModel } from '../models/FaultLog'
 import faultData from './faultData'
+import newFaultData from './newFaultData'
 
 
 export class FaultLogController {
@@ -117,6 +118,7 @@ export class FaultLogController {
     try {
       // 将faultData数组中的所有数据保存到数据库
       const savedLogs = []
+
       for (const faultItem of faultData) {
         // 确保所有必需字段都存在，特别是attackerIP
         const faultItemWithDefaults = {
@@ -129,6 +131,38 @@ export class FaultLogController {
 
       return c.json({
         message: `Successfully saved ${savedLogs.length} fault logs`,
+        count: savedLogs.length,
+        faultLogs: savedLogs
+      }, 201)
+    } catch (error) {
+      console.error('Error saving fault logs:', error)
+      return c.json({ error: 'Failed to save fault logs' }, 500)
+    }
+  }
+
+  saveNewFaultLogs = async (c: Context) => {
+    try {
+      // 随机选择5-20条数据
+      const randomCount = Math.floor(Math.random() * 16) + 5;
+      const shuffled = [...newFaultData].sort(() => Math.random() - 0.5);
+      const selectedData = shuffled.slice(0, randomCount);
+      console.log("🚀 ~ FaultLogController ~ selectedData:", selectedData.length)
+
+      const savedLogs = []
+
+      for (const { _id, createdAt, updatedAt, ...other } of selectedData) {
+        // 确保所有必需字段都存在，特别是attackerIP
+        const faultItemWithDefaults = {
+          attackerIP: '',
+          ...other
+        };
+        const savedLog = await this.faultLogModel.create(faultItemWithDefaults)
+        savedLogs.push(savedLog)
+
+      }
+
+      return c.json({
+        message: `Successfully saved new ${savedLogs.length} fault logs`,
         count: savedLogs.length,
         faultLogs: savedLogs
       }, 201)

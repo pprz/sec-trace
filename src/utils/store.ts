@@ -15,6 +15,10 @@ export interface FaultLog {
   attackResult: string;
   threatLevel: string;
   threatName: string;
+  eventNamet: string
+  safety: string
+  disposalstatus: string
+  terminalDetails: string
   payload?: string;
   requestHeader?: string;
   responseHeader?: string;
@@ -44,7 +48,7 @@ const mutations = {
    * @param faultLogs 故障日志数组
    */
   setFaultLogs(faultLogs: FaultLog[]) {
-    state.faultLogs = faultLogs;
+    state.faultLogs = faultLogs.filter(item => !!item.occurrence);
   },
 
   /**
@@ -202,7 +206,7 @@ const getters = {
       day1Result[level] = new Array(24).fill(0);
     });
 
-    const now = new Date();
+    const now = new Date('2025-10-28');
     const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
     // const yesterday = new Date('2025-05-31');
     const yesterdayStart = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 0, 0, 0);
@@ -275,8 +279,8 @@ const getters = {
         }
       }
     } else if (type === 'day1') {
-      const now = new Date();
-      // const now = new Date('2025-06-01');
+      // const now = new Date();
+      const now = new Date('2025-10-28');
       const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
       const yesterdayStart = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 0, 0, 0);
       const yesterdayEnd = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 23, 59, 59);
@@ -374,7 +378,7 @@ const getters = {
    * 统计 faultData 中 assetIP 重复次数的前五名
    * @returns 包含前五名 assetIP 信息的 TopItem 数组
    */
-  getTopItems(type: string = 'day30', selectedDate: string): TopItem[] {
+  getTopItems(type: string = 'day30', selectedDate: string[]): TopItem[] {
     // 统计每个 assetIP 的出现次数
     const ipCountMap: Record<string, number> = {};
 
@@ -390,7 +394,11 @@ const getters = {
         return date === '2025-10-27';
       } else if (type === 'byDay') {
         const [date] = item.occurrence.split(' ');
-        return date === selectedDate;
+        const [start, end] = selectedDate as [string, string];
+        const startDate = new Date(`${start}T00:00:00`);
+        const endDate = new Date(`${end}T23:59:59`);
+        const occurrenceDate = new Date(item.occurrence.replace(' ', 'T'));
+        return occurrenceDate >= startDate && occurrenceDate <= endDate;
       }
       return false;
     });
@@ -418,14 +426,13 @@ const getters = {
       value: count
     }));
   },
-  getPointStats(type: string = 'day30', selectedDate: string): TwoPointStat[] {
-    console.log("🚀 ~ type:", type)
+  getPointStats(type: string = 'day30', selectedDate: string[]): TwoPointStat[] {
     // 统计每个 level1Type 的出现次数
     const colorMap: Record<string, string> = {
-      '攻击利用': '#ed3f35',
-      '拒绝服务': '#eacf19',
-      '恶意软件': '#eacf19',
-      '可疑活动': '#eacf19',
+      '攻击利用': '#3554ed',
+      '拒绝服务': '#f86002',
+      '恶意软件': '#2def30',
+      '可疑活动': '#F58A8A',
       // 可添加更多 level1Type 对应的颜色
     };
 
@@ -442,11 +449,14 @@ const getters = {
         return date === '2025-10-27';
       } else if (type === 'byDay') {
         const [date] = item.occurrence.split(' ');
-        return date === selectedDate;
+        const [start, end] = selectedDate as [string, string];
+        const startDate = new Date(`${start}T00:00:00`);
+        const endDate = new Date(`${end}T23:59:59`);
+        const occurrenceDate = new Date(item.occurrence.replace(' ', 'T'));
+        return occurrenceDate >= startDate && occurrenceDate <= endDate;
       }
       return false;
     });
-    console.log("🚀 ~ filteredLogs:", filteredLogs)
 
     for (const item of filteredLogs) {
       const level1Type = item.level1Type;
@@ -457,12 +467,12 @@ const getters = {
     return Object.entries(level1TypeCount).map(([label, value]) => ({
       value: value.toString(),
       label,
-      color: colorMap[label] || '#eacf19' // 如果没有对应的颜色，使用默认颜色
+      color: colorMap[label] || '#ef9d7a' // 如果没有对应的颜色，使用默认颜色
     }));
   },
 
 
-  getLevel2TypeStats(type: string = 'day30', selectedDate: string): { name: string; value: number }[] {
+  getLevel2TypeStats(type: string = 'day30', selectedDate: string[]): { name: string; value: number }[] {
     // 用于存储每个 level2Type 的出现次数
     const level2TypeCount: Record<string, number> = {};
     const filteredLogs = state.faultLogs.filter(item => {
@@ -475,12 +485,14 @@ const getters = {
         const [date] = item.occurrence.split(' ');
         return date === '2025-10-27';
       } else if (type === 'byDay') {
-        const [date] = item.occurrence.split(' ');
-        return date === selectedDate;
+        const [start, end] = selectedDate as [string, string];
+        const startDate = new Date(`${start}T00:00:00`);
+        const endDate = new Date(`${end}T23:59:59`);
+        const occurrenceDate = new Date(item.occurrence.replace(' ', 'T'));
+        return occurrenceDate >= startDate && occurrenceDate <= endDate;
       }
       return false;
     });
-
 
     // 遍历 faultData 统计 level2Type 出现次数
     for (const item of filteredLogs) {
@@ -511,7 +523,7 @@ const getters = {
     level1Type?: string,
     level2Type?: string,
     assetIP?: string,
-    selectedDate?: string
+    selectedDate?: string[]
   }): FaultLog[] {
     // 根据type参数筛选基础数据集
     let filteredLogs = state.faultLogs;
@@ -531,8 +543,11 @@ const getters = {
       });
     } else if (filter.type === 'byDay' && filter.selectedDate) {
       filteredLogs = state.faultLogs.filter(log => {
-        const [date] = log.occurrence.split(' ');
-        return date === filter.selectedDate;
+        const [start, end] = filter.selectedDate as [string, string];
+        const startDate = new Date(`${start}T00:00:00`);
+        const endDate = new Date(`${end}T23:59:59`);
+        const occurrenceDate = new Date(log.occurrence.replace(' ', 'T'));
+        return occurrenceDate >= startDate && occurrenceDate <= endDate;
       });
     }
 

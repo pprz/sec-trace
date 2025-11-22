@@ -733,3 +733,15 @@ a{
 .overview .chart {
   margin-top: 1rem;
 }
+
+.t-input__inner::placeholder{
+	color: #888 !important;
+	opacity: 1;
+}
+
+.t-input.t-is-readonly,
+.t-range-input.t-range-input--suffix{
+	background: rgba(255,255,255,0.1) !important;
+	color: #e0e0e0 !important;
+	opacity: 1;
+}

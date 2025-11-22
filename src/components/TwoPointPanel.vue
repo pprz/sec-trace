@@ -3,12 +3,16 @@
   <div class="point2 panel2">
     <div class="inner">
       <div class="header">
-        <h3>一级告警类型统计</h3>
-        <t-date-picker
+        <h3>二级告警类型统计</h3>
+        <t-date-range-picker
           v-model="selectedDate"
           :options="datePickerOptions"
           @change="handleDateChange"
           clearable
+		  :disableDate="{
+		    before: '2025-08-01',
+		    after: '2025-10-28',
+		  }"
         />
       </div>
       <div class="chart">
@@ -39,7 +43,7 @@ export default defineComponent({
     const type = ref("day30");
     const level2Type = ref("");
     const dialogVisible = ref(false);
-    const selectedDate = ref();
+    const selectedDate = ref([]);
     const globalType = ref("day30");
     const datePickerOptions = {
       disableDate: (date: Date) => date > new Date(),
@@ -130,8 +134,8 @@ export default defineComponent({
       }
     };
 
-    const handleDateChange = (date: string | null) => {
-      if (!date) {
+    const handleDateChange = (date: string[]) => {
+      if (!date.length) {
         type.value = globalType.value;
       } else {
         type.value = "byDay";
@@ -152,7 +156,7 @@ export default defineComponent({
     watchEffect(() => {
       plantCap.value = store.getLevel2TypeStats(
         type.value,
-        selectedDate.value as any
+        selectedDate.value
       );
       initChart();
     });
@@ -214,8 +218,8 @@ h3 {
   font-weight: bold;
 }
 
-.header .t-date-picker {
-  width: 180px;
+.header .t-date-range-picker {
+  width: 230px;
   flex-shrink: 0;
 }
 </style>

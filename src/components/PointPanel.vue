@@ -3,30 +3,34 @@
     <div class="inner" style="width: 90%">
       <div class="header">
         <h3>一级告警类型统计</h3>
-        <t-date-picker
+        <t-date-range-picker
           v-model="selectedDate"
           :options="datePickerOptions"
           @change="handleDateChange"
           clearable
+          class="transparent-date-picker"
+		  :disableDate="{
+		    before: '2025-08-01',
+		    after: '2025-10-28',
+		  }"
         />
       </div>
       <div class="chart">
         <!-- ECharts 图表容器 -->
         <div ref="chartRef" class="pie"></div>
-        <div class="data">
-          <div class="item" v-for="(stat, index) in pointStats" :key="index">
-            <h4>{{ stat.value }}</h4>
-            <span>
-              <i class="icon-dot" :style="{ color: stat.color }"></i>
-              {{ stat.label }}
-            </span>
+        <!-- 新增：图列显示区域 -->
+        <div class="legend">
+          <div class="legend-item" v-for="(stat, index) in pointStats" :key="index">
+            <span class="legend-color" :style="{ backgroundColor: stat.color }"></span>
+            <span class="legend-label">{{ stat.label }}</span>
+            <span class="legend-value">{{ stat.value }}</span>
           </div>
         </div>
       </div>
     </div>
     <FaultDialog
       v-if="dialogVisible"
-      :filter="{ type, level1Type, selectedDate }"
+      :filter="{ type, level1Type, selectedDate}"
       @close="dialogVisible = false"
     />
   </div>
@@ -50,14 +54,14 @@ export default defineComponent({
     const globalType = ref("day30");
     const level1Type = ref("");
     const dialogVisible = ref(false);
-    const selectedDate = ref();
+    const selectedDate = ref([]);
     const datePickerOptions = {
       disableDate: (date: Date) => date > new Date(),
     };
     // 新增：标识当前是否选择了特定日期
 
-    const handleDateChange = (date: string | null) => {
-      if (!date) {
+    const handleDateChange = (date: string[]) => {
+      if (!date.length) {
         type.value = globalType.value;
       } else {
         type.value = "byDay";
@@ -73,7 +77,6 @@ export default defineComponent({
           value: parseFloat(stat.value.replace(",", "")), // 转换为数字
           name: stat.label,
         }));
-
         // 配置 ECharts 图表
         const option = {
           // 控制提示
@@ -90,6 +93,7 @@ export default defineComponent({
               center: ["50%", "53%"],
               data: chartData,
               label: {
+                show: false, // 关闭标签显示
                 fontSize: 14,
                 rotate: 0,
                 alignTo: "labelLine",
@@ -135,7 +139,7 @@ export default defineComponent({
     onMounted(() => {
       eventBus.on("filterChange", (event) => {
         globalType.value = event as string;
-        type.value = event as string;
+		type.value   = event as string;
       });
     });
 
@@ -147,8 +151,8 @@ export default defineComponent({
     watchEffect(() => {
       pointStats.value = store.getPointStats(
         type.value,
-        selectedDate.value as any
-      );
+        selectedDate.value 
+      ).filter(item=>!!item.label);
       initChart();
     });
 
@@ -193,5 +197,60 @@ export default defineComponent({
 .header .t-date-picker {
   width: 180px;
   flex-shrink: 0;
+}
+
+.transparent-date-picker {
+  /* background-color: #00bcd4; */
+  color: #ffffff; /* 输入文字颜色 */
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
+
+/* 新增：图列样式 */
+.legend {
+  margin-top: 20px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.legend-label {
+  color: #e0e0e0;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.legend-value {
+  color: #aaa;
+  font-size: 13px;
+  margin-left: auto;
+}
+.header .t-date-range-picker {
+  width: 230px;
+  flex-shrink: 0;
+}
+
+:deep(.t-input__inner::placeholder){
+	font-size: 14px !important;
 }
 </style>
