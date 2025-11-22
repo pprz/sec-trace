@@ -11,7 +11,7 @@
             @click="openAiDialog"
           >
             <img
-              src="https://tdesign.gtimg.com/site/chat-avatar.png"
+              src="@/assets/images/chat-avatar.png"
               alt="AI助手"
               style="width: 25px; height: 25px"
             />
@@ -87,9 +87,7 @@
         <div class="timeline-content">
           <!-- 顶部悬浮提示框 -->
           <div class="tooltip-container">
-            <div class="tooltip">
-           威胁名称:{{ alertDetails.threatName }}
-            </div>
+            <div class="tooltip">威胁名称:{{ alertDetails.threatName }}</div>
           </div>
 
           <!-- 时序流程图 -->
@@ -120,7 +118,8 @@
 
           <!-- 底部信息栏 -->
           <div class="timeline-footer">
-            事件 ID: {{ alertDetails.id }} | 处置状态: {{ alertDetails.disposalstatus }}
+            事件 ID: {{ alertDetails.id }} | 处置状态:
+            {{ alertDetails.disposalstatus }}
           </div>
         </div>
       </div>
@@ -149,7 +148,7 @@ export default {
       level1Type: "一级告警类型",
       level2Type: "二级告警类型",
       threatName: "威胁名称",
-      eventNamet:"事件名称",
+      eventNamet: "事件名称",
       safety: "安全设备",
       disposalstatus: "处置状态",
       terminalDetails: "终端详情",
@@ -189,7 +188,9 @@ export default {
     const attackTimelineSteps = ref([
       {
         icon: "S",
-        time: alertDetails.occurrence ? alertDetails.occurrence.split(' ')[1] : "",
+        time: alertDetails.occurrence
+          ? alertDetails.occurrence.split(" ")[1]
+          : "",
         title: "源 IP",
         desc: `攻击源 IP: ${alertDetails.attackerIP}`,
       },
@@ -197,7 +198,7 @@ export default {
         icon: "P",
         time: "",
         title: "探测行为",
-        desc:`${alertDetails.terminalDetails}`,
+        desc: `${alertDetails.terminalDetails}`,
       },
       {
         icon: "B",

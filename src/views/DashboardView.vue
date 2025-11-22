@@ -26,7 +26,7 @@
               class="logout-icon"
             >
               <img
-                src="https://tdesign.gtimg.com/site/chat-avatar.png"
+                src="@/assets/images/chat-avatar.png"
                 alt="AI助手"
                 style="width: 25px; height: 25px"
               />
@@ -102,7 +102,7 @@
         <t-avatar
           size="32px"
           shape="circle"
-          image="https://tdesign.gtimg.com/site/chat-avatar.png"
+          image="@/assets/images/chat-avatar.png"
         ></t-avatar>
         <span class="title">Hi, &nbsp;我是网络安全小助手</span>
       </template>
@@ -417,7 +417,7 @@ export default defineComponent({
     const selectedModel = ref("");
 
     // 设备型号映射关系
-    const deviceModels = {
+    const deviceModels: { [key: string]: { label: string; value: string; }[] } = {
       明御安全网关: [{ label: " DAS-Gateway ", value: "DAS-Gateway" }],
       奇安信态势感知: [{ label: "TSS10000-A58-WS", value: "TSS10000-A58-WS" }],
       深信服: [
@@ -490,7 +490,7 @@ export default defineComponent({
 
     const chatList = ref([
       {
-        avatar: "https://tdesign.gtimg.com/site/chat-avatar.png",
+        avatar: "@/assets/images/chat-avatar.png",
         role: "assistant",
         name: "络安全小助手",
         content: "你好！我是网络安全小助手，有什么可以帮您的吗？",
@@ -526,7 +526,7 @@ export default defineComponent({
       };
       chatList.value.unshift(params);
       const params2 = {
-        avatar: "https://tdesign.gtimg.com/site/chat-avatar.png",
+        avatar: "@/assets/images/chat-avatar.png",
         name: "AI小助手",
         content: "",
         reasoning: "",
