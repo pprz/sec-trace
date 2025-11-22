@@ -2372,21 +2372,6 @@ const faultData = [
         "requestHeader": "\"POST /api/auth/oauth/token HTTP/1.1\\r\\nHost: 183.201.228.22:85\\r\\nConnection: keep-alive\\r\\nContent-Length: 95\\r\\nisToken: false\\r\\nUser-Agent: Mozilla/5.0 (X11; Linux aarch64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.6478.251 Safari/537.36\\r\\nAuthorization: Basic cGlnOnBpZw==\\r\\nauth: 50e6a84d9417459a8621f04d81b1eba9\\r\\nopen-id: 1805526533448601602\\r\\nContent-Type: application/x-www-form-urlencoded\\r\\nAccept: application/json, text/plain, */*\\r\\ncompany-id: 1\\r\\nOrigin: http://183.201.228.22:85\\r\\nReferer: http://183.201.228.22:85/\\r\\nAccept-Encoding: gzip, deflate\\r\\nAccept-Language: zh-CN,zh-TW;q=0.9,zh;q=0.8,en-US;q=0.7,en;q=0.6\\r\\n\\r\\n\""
     },
     {
-        "occurrence": "2025-10-22 14:28:56",
-        "assetIP": "211.144.20.199",
-        "attackerIP": "192.168.141.30",
-        "level1Type": "攻击利用",
-        "level2Type": "信息泄露",
-        "threatName": "Microsoft Windows Media Player File 信息泄露漏洞",
-        "attackResult": "企图",
-        "threatLevel": "低危",
-        "eventNamet": "无",
-        "safety": "奇安信",
-        "disposalstatus": "未处置",
-        "terminalDetails": "无",
-        "requestHeader": "\"GET /slxczx/scripts/jquery/jquery.media.js HTTP/1.1\\r\\nHost: slxczx.mwr.cn\\r\\nConnection: keep-alive\\r\\nUser-Agent: Mozilla/5.0 (X11; Linux aarch64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36\\r\\nAccept: */*\\r\\nReferer: http://slxczx.mwr.cn/slxczx/watf/layout/tbtj/tb_layout.jsp?menunode=WATF\\r\\nAccept-Encoding: gzip, deflate\\r\\nAccept-Language: zh-CN,zh;q=0.9\\r\\nCookie: JSESSIONID=043EC43782FE559DA0A43E1CD73A3FE0; userInfo=%E5%B1%B1%E8%A5%BF%E7%9C%81|||tMmxalNBSEv78cYT0shbCqa+rjYPvT1M; isRem=y; cookie_cur_bzcode=SLFP; cookie_cur_task=\\r\\n\\r\\n\""
-    },
-    {
         "occurrence": "2025-10-22 14:23:13",
         "assetIP": "192.168.142.130",
         "attackerIP": "",
