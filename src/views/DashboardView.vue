@@ -417,14 +417,17 @@ export default defineComponent({
     const selectedModel = ref("");
 
     // 设备型号映射关系
-    const deviceModels: { [key: string]: { label: string; value: string; }[] } = {
-      明御安全网关: [{ label: " DAS-Gateway ", value: "DAS-Gateway" }],
-      奇安信态势感知: [{ label: "TSS10000-A58-WS", value: "TSS10000-A58-WS" }],
-      深信服: [
-        { label: "AC-1000", value: "AC-1000" },
-        { label: "AF-1000", value: "AF-1000" },
-      ],
-    };
+    const deviceModels: { [key: string]: { label: string; value: string }[] } =
+      {
+        明御安全网关: [{ label: " DAS-Gateway ", value: "DAS-Gateway" }],
+        奇安信态势感知: [
+          { label: "TSS10000-A58-WS", value: "TSS10000-A58-WS" },
+        ],
+        深信服: [
+          { label: "AC-1000", value: "AC-1000" },
+          { label: "AF-1000", value: "AF-1000" },
+        ],
+      };
 
     // 可用的规格型号（根据选择的设备动态变化）
     const availableModels = computed(() => {
@@ -544,8 +547,7 @@ export default defineComponent({
       fetchEventSource("https://api.siliconflow.cn/v1/chat/completions", {
         method: "POST",
         headers: {
-          Authorization:
-            "Bearer sk-rlncbcchjmqcgppnahivoiybvitjxxydvsfdvttwlmykltls",
+          Authorization: "Bearer x x x",
           "Content-Type": "application/json",
         },
         body: JSON.stringify({

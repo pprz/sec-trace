@@ -2,7 +2,7 @@
   <div class="order panel">
     <div class="inner">
       <!-- 过滤器部分 -->
-      <div class="filter">
+      <div class="filter" v-if="false">
         <a
           v-for="(filter, key) in filters"
           :key="key"
