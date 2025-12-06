@@ -3,7 +3,6 @@ import { FaultLogModel } from '../models/FaultLog'
 import faultData from './faultData'
 import newFaultData from './newFaultData'
 
-
 export class FaultLogController {
   private faultLogModel: FaultLogModel
 

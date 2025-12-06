@@ -1,8 +1,12 @@
 import { Hono } from 'hono'
 import { FaultLogController } from '../controllers/FaultLogController'
+import { standerUser } from '../middleware/authMiddleware'
 
 const faultLogRoutes = new Hono();
 const faultLogController = new FaultLogController();
+
+// 应用全局认证中间件
+faultLogRoutes.use('*', standerUser);
 
 // 获取所有故障日志
 faultLogRoutes.get('/', faultLogController.getAllFaultLogs);

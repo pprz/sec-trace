@@ -14,6 +14,7 @@
             @click="handleExportButtonClick"
             class="export-button"
             title="导入数据"
+            v-if="isAdmin"
           >
             <span class="button-text" style="text-align: center">导入数据</span>
           </button>
@@ -415,6 +416,7 @@ export default defineComponent({
     // 设备信息相关变量
     const selectedDevice = ref("");
     const selectedModel = ref("");
+    const isAdmin = ref(false);
 
     // 设备型号映射关系
     const deviceModels: { [key: string]: { label: string; value: string }[] } =
@@ -594,7 +596,6 @@ export default defineComponent({
       try {
         store.setLoading(true);
         const faultLogs: FaultLog[] = await fetchFaultLogs();
-        console.log("🚀 ~ loadFaultLogs ~ faultLogs:", faultLogs.length);
         store.setFaultLogs(faultLogs);
         store.setLoading(false);
       } catch (error) {
@@ -734,6 +735,10 @@ export default defineComponent({
 
     onMounted(() => {
       updateDateTime();
+      const user = JSON.parse(localStorage.getItem("user") || "");
+      if (user.username === "admin") {
+        isAdmin.value = true;
+      }
       setInterval(updateDateTime, 1000);
       eventBus.on("openAiDialog", (event: any) => {
         toggleDrawer();
@@ -795,6 +800,7 @@ export default defineComponent({
       isSessionWarning,
       warningCountdown,
       cancelWarning,
+      isAdmin,
     };
   },
 });

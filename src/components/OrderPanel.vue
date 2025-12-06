@@ -58,6 +58,10 @@ export default defineComponent({
     };
 
     const showDialog = (value: string) => {
+      const user = JSON.parse(localStorage.getItem("user") || "");
+      if (user.username !== "admin") {
+        return;
+      }
       dialogVisible.value = true;
       threatLevel.value = value;
     };

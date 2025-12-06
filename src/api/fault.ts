@@ -1,4 +1,3 @@
-// import faultData from "./faultData.js";
 export interface FaultLog {
   id?: string;
   occurrence: string;
@@ -24,10 +23,26 @@ export interface FaultLog {
 // API基础URL
 const API_BASE_URL = 'http://localhost:8080/api/fault-logs';
 
+// 获取认证头
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token');
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  return headers;
+};
+
 // 获取所有故障日志
 export const fetchFaultLogs = async (): Promise<FaultLog[]> => {
   try {
-    const response = await fetch(API_BASE_URL);
+    const response = await fetch(API_BASE_URL, {
+      headers: getAuthHeaders()
+    });
     if (!response.ok) {
       throw new Error(`Failed to fetch fault logs: ${response.statusText}`);
     }
@@ -42,7 +57,9 @@ export const fetchFaultLogs = async (): Promise<FaultLog[]> => {
 // 根据ID获取特定故障日志
 export const fetchFaultLogById = async (id: string): Promise<FaultLog | null> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/${id}`);
+    const response = await fetch(`${API_BASE_URL}/${id}`, {
+      headers: getAuthHeaders()
+    });
     if (!response.ok) {
       if (response.status === 404) {
         return null;
@@ -60,7 +77,9 @@ export const fetchFaultLogById = async (id: string): Promise<FaultLog | null> =>
 // 根据资产IP获取故障日志
 export const fetchFaultLogsByAssetIP = async (assetIP: string): Promise<FaultLog[]> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/asset/${assetIP}`);
+    const response = await fetch(`${API_BASE_URL}/asset/${assetIP}`, {
+      headers: getAuthHeaders()
+    });
     if (!response.ok) {
       throw new Error(`Failed to fetch fault logs by asset IP: ${response.statusText}`);
     }
@@ -75,7 +94,9 @@ export const fetchFaultLogsByAssetIP = async (assetIP: string): Promise<FaultLog
 // 根据攻击者IP获取故障日志
 export const fetchFaultLogsByAttackerIP = async (attackerIP: string): Promise<FaultLog[]> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/attacker/${attackerIP}`);
+    const response = await fetch(`${API_BASE_URL}/attacker/${attackerIP}`, {
+      headers: getAuthHeaders()
+    });
     if (!response.ok) {
       throw new Error(`Failed to fetch fault logs by attacker IP: ${response.statusText}`);
     }
@@ -90,7 +111,9 @@ export const fetchFaultLogsByAttackerIP = async (attackerIP: string): Promise<Fa
 // 根据威胁等级获取故障日志
 export const fetchFaultLogsByThreatLevel = async (threatLevel: string): Promise<FaultLog[]> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/threat/${threatLevel}`);
+    const response = await fetch(`${API_BASE_URL}/threat/${threatLevel}`, {
+      headers: getAuthHeaders()
+    });
     if (!response.ok) {
       throw new Error(`Failed to fetch fault logs by threat level: ${response.statusText}`);
     }
@@ -107,9 +130,7 @@ export const createFaultLog = async (faultLog: Omit<FaultLog, 'id' | 'createdAt'
   try {
     const response = await fetch(API_BASE_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify(faultLog),
     });
 
@@ -130,9 +151,7 @@ export const updateFaultLog = async (id: string, faultLog: Partial<FaultLog>): P
   try {
     const response = await fetch(`${API_BASE_URL}/${id}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify(faultLog),
     });
 
@@ -156,9 +175,13 @@ export const deleteFaultLog = async (id: string): Promise<boolean> => {
   try {
     const response = await fetch(`${API_BASE_URL}/${id}`, {
       method: 'DELETE',
+      headers: getAuthHeaders()
     });
 
     if (!response.ok) {
+      if (response.status === 404) {
+        return false;
+      }
       throw new Error(`Failed to delete fault log: ${response.statusText}`);
     }
 
@@ -169,11 +192,12 @@ export const deleteFaultLog = async (id: string): Promise<boolean> => {
   }
 };
 
-// 保存faultData数组到数据库
-export const saveFaultLogs = async (): Promise<{ count: number; faultLogs: FaultLog[] } | null> => {
+// 保存故障数据
+export const saveFaultLogs = async (): Promise<{ message: string; count: number } | null> => {
   try {
     const response = await fetch(`${API_BASE_URL}/save`, {
       method: 'POST',
+      headers: getAuthHeaders()
     });
 
     if (!response.ok) {
@@ -181,32 +205,29 @@ export const saveFaultLogs = async (): Promise<{ count: number; faultLogs: Fault
     }
 
     const data = await response.json();
-    return {
-      count: data.count,
-      faultLogs: data.faultLogs
-    };
+    return data;
   } catch (error) {
     console.error('Error saving fault logs:', error);
     return null;
   }
 };
-export const saveNewFaultLogs = async (): Promise<{ count: number; faultLogs: FaultLog[] } | null> => {
+
+// 保存新故障数据
+export const saveNewFaultLogs = async (): Promise<{ message: string; count: number } | null> => {
   try {
     const response = await fetch(`${API_BASE_URL}/save-new`, {
       method: 'POST',
+      headers: getAuthHeaders()
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to save fault logs: ${response.statusText}`);
+      throw new Error(`Failed to save new fault logs: ${response.statusText}`);
     }
 
     const data = await response.json();
-    return {
-      count: data.count,
-      faultLogs: data.faultLogs
-    };
+    return data;
   } catch (error) {
-    console.error('Error saving fault logs:', error);
+    console.error('Error saving new fault logs:', error);
     return null;
   }
 };
@@ -230,74 +251,3 @@ export interface AlertItem {
   responseHeader?: string;
   responseBody?: string;
 }
-
-// export const getAlertData = (): Promise<{ data: AlertItem[] }> => {
-//   return new Promise((resolve) => {
-//     setTimeout(() => {
-//       resolve({
-//         data: faultData as AlertItem[],
-//       });
-//     }, 300);
-//   });
-// };
-
-// export const getLinerCharttData = (type: string) => {
-//   let result: Record<string, number[]> = {};
-
-
-//   if (type === 'day30') {
-//     // 之前 30 天（5 月）的统计逻辑
-//     result = getMothData();
-//   } else if (type === 'day1') {
-//     // 前一天 0 到 24 时的统计逻辑
-//     result = getLastDayData();
-//   }
-
-//   return result;
-// };
-// const getMothData = () => {
-//   const day30Result: Record<string, number[]> = {};
-//   const threatLevels = new Set(faultData.map(alert => alert.threatLevel));
-//   threatLevels.forEach(level => {
-//     day30Result[level] = new Array(31).fill(0);
-//   });
-
-//   for (const alert of faultData) {
-//     const { threatLevel, occurrence } = alert;
-//     const [year, month, dayStr] = occurrence.split(' ')[0].split('-');
-//     if (year === '2025' && month === '05') {
-//       const day = parseInt(dayStr, 10) - 1;
-//       if (day30Result[threatLevel]) {
-//         day30Result[threatLevel][day]++;
-//       }
-//     }
-//   }
-//   return day30Result;
-
-// }
-
-// const getLastDayData = () => {
-//   const day1Result: Record<string, number[]> = {};
-//   const threatLevels = new Set(faultData.map(alert => alert.threatLevel));
-//   threatLevels.forEach(level => {
-//     day1Result[level] = new Array(24).fill(0);
-//   });
-
-//   const now = new Date();
-//   const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
-//   const yesterdayStart = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 0, 0, 0);
-//   const yesterdayEnd = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 23, 59, 59);
-
-//   for (const alert of faultData) {
-//     const { threatLevel, occurrence } = alert;
-//     const alertDate = new Date(occurrence);
-//     if (alertDate >= yesterdayStart && alertDate <= yesterdayEnd) {
-//       const hour = alertDate.getHours();
-//       if (day1Result[threatLevel]) {
-//         day1Result[threatLevel][hour]++;
-//       }
-//     }
-//   }
-//   return day1Result;
-// }
-

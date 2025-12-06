@@ -15,7 +15,7 @@ app.use(logger())
 // 配置CORS - 严格限制来源和方法，移除credentials配置
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:5173', // 从环境变量读取允许的来源
-  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // 仅允许必要HTTP方法
+  allowMethods: ['GET', 'POST',], // 仅允许必要HTTP方法
   allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'], // 限制允许的请求头
 }))
 

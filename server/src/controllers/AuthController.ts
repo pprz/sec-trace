@@ -37,13 +37,13 @@ export class AuthController {
       // 查找用户 - 确保使用正确的属性名
       const user = await this.userModel.findByUsername(username);
       if (!user) {
-        return c.json<LoginResponse>({ success: false, error: '用户不存在' }, 401);
+        return c.json<LoginResponse>({ success: false, error: '用户名或密码错误' }, 401);
       }
 
       // 验证密码
       const isValid = await bcrypt.compare(password, user.password);
       if (!isValid) {
-        return c.json<LoginResponse>({ success: false, error: '密码错误' }, 401);
+        return c.json<LoginResponse>({ success: false, error: '用户名或密码错误' }, 401);
       }
 
       // 生成JWT token
@@ -53,7 +53,7 @@ export class AuthController {
           username: user.username
         },
         this.jwtSecret,
-        { expiresIn: '1h' }
+        { expiresIn: '1week' }
       );
 
       // 返回成功响应

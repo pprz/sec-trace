@@ -9,10 +9,10 @@
           @change="handleDateChange"
           clearable
           class="transparent-date-picker"
-		  :disableDate="{
-		    before: '2025-08-01',
-		    after: '2025-10-28',
-		  }"
+          :disableDate="{
+            before: '2025-08-01',
+            after: '2025-10-28',
+          }"
         />
       </div>
       <div class="chart">
@@ -20,8 +20,15 @@
         <div ref="chartRef" class="pie"></div>
         <!-- 新增：图列显示区域 -->
         <div class="legend">
-          <div class="legend-item" v-for="(stat, index) in pointStats" :key="index">
-            <span class="legend-color" :style="{ backgroundColor: stat.color }"></span>
+          <div
+            class="legend-item"
+            v-for="(stat, index) in pointStats"
+            :key="index"
+          >
+            <span
+              class="legend-color"
+              :style="{ backgroundColor: stat.color }"
+            ></span>
             <span class="legend-label">{{ stat.label }}</span>
             <span class="legend-value">{{ stat.value }}</span>
           </div>
@@ -30,7 +37,7 @@
     </div>
     <FaultDialog
       v-if="dialogVisible"
-      :filter="{ type, level1Type, selectedDate}"
+      :filter="{ type, level1Type, selectedDate }"
       @close="dialogVisible = false"
     />
   </div>
@@ -139,20 +146,23 @@ export default defineComponent({
     onMounted(() => {
       eventBus.on("filterChange", (event) => {
         globalType.value = event as string;
-		type.value   = event as string;
+        type.value = event as string;
       });
     });
 
     const showDialog = (value: string) => {
+      const user = JSON.parse(localStorage.getItem("user") || "");
+      if (user.username !== "admin") {
+        return;
+      }
       dialogVisible.value = true;
       level1Type.value = value;
     };
 
     watchEffect(() => {
-      pointStats.value = store.getPointStats(
-        type.value,
-        selectedDate.value 
-      ).filter(item=>!!item.label);
+      pointStats.value = store
+        .getPointStats(type.value, selectedDate.value)
+        .filter((item) => !!item.label);
       initChart();
     });
 
@@ -210,7 +220,6 @@ export default defineComponent({
   font-size: 1.2rem;
 }
 
-
 /* 新增：图列样式 */
 .legend {
   margin-top: 20px;
@@ -250,7 +259,7 @@ export default defineComponent({
   flex-shrink: 0;
 }
 
-:deep(.t-input__inner::placeholder){
-	font-size: 14px !important;
+:deep(.t-input__inner::placeholder) {
+  font-size: 14px !important;
 }
 </style>

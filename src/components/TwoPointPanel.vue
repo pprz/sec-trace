@@ -9,10 +9,10 @@
           :options="datePickerOptions"
           @change="handleDateChange"
           clearable
-		  :disableDate="{
-		    before: '2025-08-01',
-		    after: '2025-10-28',
-		  }"
+          :disableDate="{
+            before: '2025-08-01',
+            after: '2025-10-28',
+          }"
         />
       </div>
       <div class="chart">
@@ -149,15 +149,16 @@ export default defineComponent({
       });
     });
     const showDialog = (value: string) => {
+      const user = JSON.parse(localStorage.getItem("user") || "");
+      if (user.username !== "admin") {
+        return;
+      }
       dialogVisible.value = true;
       level2Type.value = value;
     };
 
     watchEffect(() => {
-      plantCap.value = store.getLevel2TypeStats(
-        type.value,
-        selectedDate.value
-      );
+      plantCap.value = store.getLevel2TypeStats(type.value, selectedDate.value);
       initChart();
     });
 

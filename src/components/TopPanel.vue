@@ -11,7 +11,7 @@
           :disableDate="{
             before: '2025-08-01',
             after: '2025-10-28',
-          }"		  
+          }"
         />
       </div>
       <div class="boxnav paim">
@@ -78,6 +78,10 @@ export default defineComponent({
       }
     };
     const showDialog = (value: string) => {
+      const user = JSON.parse(localStorage.getItem("user") || "");
+      if (user.username !== "admin") {
+        return;
+      }
       dialogVisible.value = true;
       assetIP.value = value;
     };
